@@ -33,6 +33,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 /**
@@ -63,6 +64,7 @@ public class Example_ParentOpMode extends LinearOpMode {
     // Declare OpMode members, hardware variables
     public ElapsedTime runtime = new ElapsedTime();
 
+    private Servo spindexServo = null;
     private DcMotor rightFront = null;
     private DcMotor rightBack = null;
     private DcMotor leftFront = null;
@@ -70,14 +72,15 @@ public class Example_ParentOpMode extends LinearOpMode {
 
     //Other Global Variables
     //put global variables here...
-    //
-    //
-    //
+    double servoPosition0 = 0;
+    double servoPosition1 = 0.33;
+    double servoPosition2 = 0.67;
 
     public void initialize(){
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
         // step (using the FTC Driver Station app or Driver Hub).
+        spindexServo = hardwareMap.get(Servo.class, "spindex Servo");
         rightFront = hardwareMap.get(DcMotor.class, "rf_drive");
         rightBack = hardwareMap.get(DcMotor.class, "rb_drive");
         leftFront = hardwareMap.get(DcMotor.class,"lf_drive");
@@ -87,6 +90,7 @@ public class Example_ParentOpMode extends LinearOpMode {
 
 
         //Set Motor  and servo Directions
+        spindexServo.setDirection(Servo.Direction.FORWARD);
         rightFront.setDirection(DcMotor.Direction.REVERSE);
         rightBack.setDirection(DcMotor.Direction.REVERSE);
         leftFront.setDirection(DcMotor.Direction.FORWARD);
@@ -115,6 +119,7 @@ public class Example_ParentOpMode extends LinearOpMode {
 
         // Init loop - optional
         while(opModeInInit()){
+            telemetry.addData("Cheese and Pickles ","Sandwich!");
             // Code in here will loop continuously until OpMode is started
         }
 
@@ -158,6 +163,9 @@ public class Example_ParentOpMode extends LinearOpMode {
     
 
     // Buttons
+    public boolean spindex_left(){return gamepad1.left_bumper;}
+    public boolean spindex_right(){return gamepad1.right_bumper;}
+
     public boolean emergencyButtons(){
         // check for combination of buttons to be pressed before returning true
         return true;
@@ -165,12 +173,7 @@ public class Example_ParentOpMode extends LinearOpMode {
 
 
     public boolean triggerButton(){
-        if((gamepad1.right_trigger>.25)||(gamepad2.right_trigger>.25)){
-            return true;         // Converts analog triggers into digital button presses (booleans)
-        }
-        else{
-            return false;
-        }
+        return (gamepad1.right_trigger>.25||gamepad2.right_trigger>.25);
     }
 
     public boolean triggerButton1(){
@@ -234,6 +237,22 @@ public class Example_ParentOpMode extends LinearOpMode {
     /*****************************/
     //Gyro Functions
 
+    /*****************************/
+    //Servo Functions
+    public void setServoPosition0(double ServoPos){
+        spindexServo.setPosition(ServoPos);
+    }
 
+    public void MoveServo(){
+        double currentPosition = spindexServo.getPosition();
 
+        if(currentPosition == servoPosition0){
+            if(spindex_right()){
+                setServoPosition0(servoPosition1);
+            }
+        }
+        else{
+
+        }
+    }
 }
