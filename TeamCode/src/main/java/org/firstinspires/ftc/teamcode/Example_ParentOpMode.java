@@ -70,6 +70,8 @@ public class Example_ParentOpMode extends LinearOpMode {
     private DcMotor leftFront = null;
     private DcMotor leftBack = null;
 
+    private DcMotor autoshotgun = null;
+
     //Other Global Variables
     //put global variables here...
     double servoPosition0 = 0;
@@ -136,12 +138,9 @@ public class Example_ParentOpMode extends LinearOpMode {
 
             //include emergency stop check in all runOpMode() functions/methods
             //implementation depends on which E-stop function will be used (boolean/void)
-            if(emergencyStopped()){
-                //terminateOpModeNow();   // New method in 2022. (Immediately, Cleanly exits OpMode)
-                break;
-            }
 
-            //checkEmergencyStop(); // Stops motors and Terminates if buttons are pressed
+
+            checkEmergencyStop(); // Stops motors and Terminates if buttons are pressed
             //without additional code in the while(opModeIsActive) loop.
 
             telemetry.update();
@@ -168,7 +167,8 @@ public class Example_ParentOpMode extends LinearOpMode {
 
     public boolean emergencyButtons(){
         // check for combination of buttons to be pressed before returning true
-        return true;
+        return (gamepad1.b && gamepad1.y) || (gamepad2.b && gamepad2.y);
+
     }
 
 
@@ -186,18 +186,11 @@ public class Example_ParentOpMode extends LinearOpMode {
     // If using boolean version, call to function will need to be
     // placed in conditional (if/then) statement with code to break from loop or terminate opmode.
 
-    public boolean emergencyStopped(){
-        if (emergencyButtons()) {
-            //stop all motors, servos, etc.
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
+
 
     public void checkEmergencyStop(){
         if(emergencyButtons()){
+            stopDrive();
             //stop all motors, servos, etc.
             terminateOpModeNow();   // Force exit of OpMode
         }
@@ -212,7 +205,17 @@ public class Example_ParentOpMode extends LinearOpMode {
     // thumb stick values inside function body. This will allow tank drive to be reused for
     // autonomous programs without additional work
     public void tankdrive(double left, double right){
+        rightFront.setPower(right);
+        rightBack. setPower(right);
+        leftFront.setPower(left);
+        leftBack.setPower(left);
 
+        telemetry.addData("right speed:", right);
+        telemetry.addData("left speed", left);
+    }
+
+    public void stopDrive (){
+        tankdrive(0, 0);
     }
 
 
