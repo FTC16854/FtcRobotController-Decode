@@ -64,13 +64,16 @@ public class Example_ParentOpMode extends LinearOpMode {
     // Declare OpMode members, hardware variables
     public ElapsedTime runtime = new ElapsedTime();
 
-    private Servo spindexServo = null;
+
     private DcMotor rightFront = null;
     private DcMotor rightBack = null;
     private DcMotor leftFront = null;
     private DcMotor leftBack = null;
 
-    private DcMotor autoshotgun = null;
+    private DcMotor shotgunMotor = null;
+    private Servo shotgunTriggerServo = null;
+
+    private Servo spindexServo = null;
 
     //Other Global Variables
     //put global variables here...
@@ -82,27 +85,36 @@ public class Example_ParentOpMode extends LinearOpMode {
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
         // step (using the FTC Driver Station app or Driver Hub).
-        spindexServo = hardwareMap.get(Servo.class, "spindex Servo");
+
         rightFront = hardwareMap.get(DcMotor.class, "rf_drive");
         rightBack = hardwareMap.get(DcMotor.class, "rb_drive");
         leftFront = hardwareMap.get(DcMotor.class,"lf_drive");
         leftBack = hardwareMap.get(DcMotor.class, "lb_drive");
 
+        shotgunMotor = hardwareMap.get(DcMotor.class,"shooter");
+        shotgunTriggerServo = hardwareMap.get(Servo.class, "triggerServo");
+
+        spindexServo = hardwareMap.get(Servo.class, "spindex Servo");
+
         //Set motor run mode (if using SPARK Mini motor controllers)
 
 
         //Set Motor  and servo Directions
-        spindexServo.setDirection(Servo.Direction.FORWARD);
+
         rightFront.setDirection(DcMotor.Direction.REVERSE);
         rightBack.setDirection(DcMotor.Direction.REVERSE);
         leftFront.setDirection(DcMotor.Direction.FORWARD);
         leftBack.setDirection(DcMotor.Direction.FORWARD);
+
+        spindexServo.setDirection(Servo.Direction.FORWARD);
+
 
         //Set brake or coast modes.
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE); //BRAKE or FLOAT (Coast)
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
 
         //Update Driver Station Status Message after init
         telemetry.addData("Status:", "Initialized");
@@ -165,6 +177,13 @@ public class Example_ParentOpMode extends LinearOpMode {
     public boolean spindex_left(){return gamepad1.left_bumper;}
     public boolean spindex_right(){return gamepad1.right_bumper;}
 
+    public boolean shotgunspiny (){return gamepad1.a;}
+
+    public boolean shutgunTrigger(){
+        return gamepad1.right_trigger >0.5;
+    }
+
+
     public boolean emergencyButtons(){
         // check for combination of buttons to be pressed before returning true
         return (gamepad1.b && gamepad1.y) || (gamepad2.b && gamepad2.y);
@@ -222,9 +241,15 @@ public class Example_ParentOpMode extends LinearOpMode {
 
 
     /*****************************/
-    //More Methods (Functions)
+    //shotgun Methods (Functions)
 
+    public void shotgunSpiny(double speed){
+        shotgunMotor.setPower(speed);
+    }
 
+    public void moveTriggerServo(double position){
+        shotgunTriggerServo.setPosition(position);
+    }
 
     /*****************************/
     //Autonomous Functions
