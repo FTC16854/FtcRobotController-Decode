@@ -81,6 +81,10 @@ public class Example_ParentOpMode extends LinearOpMode {
     double servoPosition1 = 0.33;
     double servoPosition2 = 0.67;
 
+    double[] PosArray = {servoPosition0, servoPosition1, servoPosition2};
+    int spindexerArrayIndex = 0;
+
+
     public void initialize(){
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
@@ -271,16 +275,33 @@ public class Example_ParentOpMode extends LinearOpMode {
         spindexServo.setPosition(ServoPos);
     }
 
+    public void setSpindexerServo(){
+        setServoPosition0(PosArray[spindexerArrayIndex]);
+    }
+    //can be made to function like minecraft hotbar, does not yet.
     public void MoveServo(){
         double currentPosition = spindexServo.getPosition();
 
-        if(currentPosition == servoPosition0){
-            if(spindex_right()){
-                setServoPosition0(servoPosition1);
+        if (spindex_right() || spindex_left()){
+
+            if (spindexerArrayIndex == 0) {
+                if (spindex_right()) {
+                    spindexerArrayIndex += 1;
+                }
+            } else {
+                if (spindexerArrayIndex == 1) {
+                    if (spindex_right()) {
+                        spindexerArrayIndex += 1;
+                    } else {
+                        spindexerArrayIndex -= 1;
+                    }
+                } else {
+                    if (spindex_left()) {
+                        spindexerArrayIndex -= 1;
+                    }
+                }
             }
         }
-        else{
-
-        }
+        setSpindexerServo();
     }
 }
