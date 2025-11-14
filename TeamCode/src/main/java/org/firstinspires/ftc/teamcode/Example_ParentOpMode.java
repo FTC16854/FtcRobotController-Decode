@@ -179,7 +179,14 @@ public class Example_ParentOpMode extends LinearOpMode {
 
     // Buttons
     public boolean spindex_left(){return gamepad1.left_bumper;}
+    public boolean spindex_left_was_pressed(){return gamepad1.leftBumperWasPressed();}
+    public boolean spindex_left_was_Released(){return gamepad1.leftBumperWasReleased();}
+
     public boolean spindex_right(){return gamepad1.right_bumper;}
+    //Look at WasPressed/WasReleased
+    // gamepad1.leftBumperWasReleased() // gamepad1.leftBumperWasPressed()
+    public boolean spindex_right_was_pressed(){return gamepad1.rightBumperWasPressed();}
+    public boolean spindex_right_was_released(){return gamepad1.rightBumperWasReleased();}
 
     public boolean shotgunspiny (){return gamepad1.a;}
 
@@ -282,26 +289,49 @@ public class Example_ParentOpMode extends LinearOpMode {
     public void MoveServo(){
         double currentPosition = spindexServo.getPosition();
 
-        if (spindex_right() || spindex_left()){
+        boolean moveLeft = false;
+        boolean moveRight = false;
+
+        if(spindex_left_was_pressed()){
+            if(spindex_left_was_Released()){
+                moveLeft = true;
+            }
+        }
+
+        if(spindex_right_was_pressed()){
+            if(spindex_right_was_released()){
+                moveRight = true;
+            }
+        }
+
+        if (moveRight || moveLeft){
 
             if (spindexerArrayIndex == 0) {
-                if (spindex_right()) {
+                if (moveRight) {
                     spindexerArrayIndex += 1;
                 }
             } else {
                 if (spindexerArrayIndex == 1) {
-                    if (spindex_right()) {
+                    if (moveRight) {
                         spindexerArrayIndex += 1;
                     } else {
                         spindexerArrayIndex -= 1;
                     }
                 } else {
-                    if (spindex_left()) {
+                    if (moveLeft) {
                         spindexerArrayIndex -= 1;
                     }
                 }
             }
+            moveRight = false;
+            moveLeft = false;
         }
         setSpindexerServo();
+    }
+
+
+    public void telemetry(){
+        telemetry.addData("spindex array indexer", spindexerArrayIndex);
+        telemetry.addData("spindex servo position", spindexServo);
     }
 }
