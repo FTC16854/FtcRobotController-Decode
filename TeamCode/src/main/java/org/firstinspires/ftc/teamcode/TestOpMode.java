@@ -116,6 +116,7 @@ public class TestOpMode extends Example_ParentOpMode {
         // Init loop - optional
         while(opModeInInit()){
             telemetry.addData("Cheese and Pickles ","Sandwich!");
+            telemetry.update();
             // Code in here will loop continuously until OpMode is started
         }
 
@@ -125,9 +126,7 @@ public class TestOpMode extends Example_ParentOpMode {
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
-
-
-
+            MoveServo();
             setSpindexerServo();
             telemetry();
 

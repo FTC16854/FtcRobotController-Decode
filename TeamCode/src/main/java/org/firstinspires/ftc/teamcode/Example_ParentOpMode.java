@@ -33,8 +33,14 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import android.graphics.Color;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
+import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
+import com.qualcomm.robotcore.hardware.NormalizedRGBA;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 /**
  * Original FTC opmode header block
@@ -63,26 +69,31 @@ public class Example_ParentOpMode extends LinearOpMode {
 
     // Declare OpMode members, hardware variables
     public ElapsedTime runtime = new ElapsedTime();
-
+    private NormalizedColorSensor colorSensor;
 
     private DcMotor rightFront = null;
     private DcMotor rightBack = null;
     private DcMotor leftFront = null;
     private DcMotor leftBack = null;
-
     private DcMotor shotgunMotor = null;
-    private Servo shotgunTriggerServo = null;
 
+    private Servo shotgunTriggerServo = null;
     private Servo spindexServo = null;
 
+    private DigitalChannel spindexPositionSwitch = null;
     //Other Global Variables
     //put global variables here...
     double servoPosition0 = 0;
     double servoPosition1 = 0.33;
     double servoPosition2 = 0.67;
 
+    String[] colorArray = new String[3];
     double[] PosArray = {servoPosition0, servoPosition1, servoPosition2};
     int spindexerArrayIndex = 0;
+
+    final float colorSensorGain = (float) 17.5;
+
+
     //TODO: Create array for ball colors (uses same index as array for position)
 
     public void initialize(){
@@ -94,14 +105,14 @@ public class Example_ParentOpMode extends LinearOpMode {
         rightBack = hardwareMap.get(DcMotor.class, "rb_drive");
         leftFront = hardwareMap.get(DcMotor.class,"lf_drive");
         leftBack = hardwareMap.get(DcMotor.class, "lb_drive");
-
         shotgunMotor = hardwareMap.get(DcMotor.class,"shooter");
-        shotgunTriggerServo = hardwareMap.get(Servo.class, "triggerServo");
 
+        shotgunTriggerServo = hardwareMap.get(Servo.class, "triggerServo");
         spindexServo = hardwareMap.get(Servo.class, "spindex Servo");
 
+        colorSensor = hardwareMap.get(NormalizedColorSensor.class, "sensor_color");
+        colorSensor.setGain(colorSensorGain);
         //Set motor run mode (esp. if using SPARK Mini motor controller(s) for drivetrain)
-
 
         //Set Motor  and servo Directions
         rightFront.setDirection(DcMotor.Direction.REVERSE);
@@ -276,16 +287,12 @@ public class Example_ParentOpMode extends LinearOpMode {
         boolean moveLeft = false;
         boolean moveRight = false;
 
-        if(spindex_left_was_pressed()){
-            if(spindex_left_was_Released()){
-                moveLeft = true;
-            }
+        if(spindex_left_was_Released() || spindex_left_was_pressed()){
+            moveLeft = true;
         }
 
-        if(spindex_right_was_pressed()){
-            if(spindex_right_was_released()){
-                moveRight = true;
-            }
+        if(spindex_right_was_released() || spindex_right_was_pressed()){
+            moveRight = true;
         }
 
         if (moveRight || moveLeft){
@@ -313,10 +320,70 @@ public class Example_ParentOpMode extends LinearOpMode {
         setSpindexerServo();
     }
 
+    public boolean ColorGreen() {
+        int MaxGreen = 195;
+        int MinGreen = 80;
+
+        final float[] hsvValues = new float[3];
+        NormalizedRGBA colors = colorSensor.getNormalizedColors();
+        Color.colorToHSV(colors.toColor(), hsvValues);
+
+        if (hsvValues[0] >= MinGreen && hsvValues[0] <= MaxGreen) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public void ColorIs() {
+        if (IsBall()) {
+            if (ColorGreen()) {
+                telemetry.addData("Color: ", "green");
+            } else {
+                telemetry.addData("Color: ", "purple");
+            }
+        } else {
+            telemetry.addData("Color: ", "none");
+        }
+    }
+
+    public boolean IsBall() {
+        double DistanceSensing = 5;
+        if
+        (((DistanceSensor) colorSensor).getDistance(DistanceUnit.CM) < DistanceSensing) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public void colorTelemetry(){
+        final float[] hsvValues = new float[3];
+        NormalizedRGBA colors = colorSensor.getNormalizedColors();
+        Color.colorToHSV(colors.toColor(), hsvValues);
+
+        telemetry.addData("Distance (cm)", "%.3f", ((DistanceSensor) colorSensor).getDistance(DistanceUnit.CM));
+
+        telemetry.addLine()
+                .addData("Red", "%.3f", colors.red)
+                .addData("Green", "%.3f", colors.green)
+                .addData("Blue", "%.3f", colors.blue);
+        telemetry.addLine()
+                .addData("Hue", "%.3f", hsvValues[0])
+                .addData("Saturation", "%.3f", hsvValues[1])
+                .addData("Value", "%.3f", hsvValues[2]);
+        telemetry.addData("Alpha", "%.3f", colors.alpha);
+    }
 
     public void telemetry(){
         telemetry.addData("spindex array index", spindexerArrayIndex);
         telemetry.addData("spindex servo position", spindexServo.getPosition());
+        telemetry.addData("L pressed",gamepad1.leftBumperWasPressed());
+        telemetry.addData("R pressed",gamepad1.rightBumperWasPressed());
+        telemetry.addData("L released",gamepad1.leftBumperWasReleased());
+        telemetry.addData("R released",gamepad1.rightBumperWasReleased());
+        colorTelemetry();
+        ColorIs();
     }
 }
 
@@ -330,6 +397,7 @@ TODO:   not listed in any particular order of importance...
     Intake/Spindexer - record ball color in color array
     Intake/Spindexer - rotate after ball detected
     Intake/Spindexer - Run intake while cycling spindexer to keep ball in?
+    Spindexer - Fix Edge-detection (wasPressed/WasReleased)
     Spindexer Positions - Limit Switch(es) for pickup/shoot position
     Spindexer initialization (auto) - Cycle through positions, record ball colors
     Spindexer - Button to select/cycle to color
