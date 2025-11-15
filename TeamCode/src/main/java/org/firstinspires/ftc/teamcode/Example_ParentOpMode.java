@@ -336,6 +336,9 @@ TODO:   not listed in any particular order of importance...
     Shooter/Spindexer - change color to "empty" or similar after successful launch
     Color Sensor - add sensors for pickup and launch locations.
         - Launch position used for detection only (distance), no color
+        - Integrate Color sensor code into ParentOpMode
+            - Color sensor for intake
+            - Color (Distance) sensor for shooter
     .......................................................................................
     .......................................................................................
 */
