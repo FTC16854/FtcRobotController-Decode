@@ -57,7 +57,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * override the ParentOpMode runOpMode() method.
  **/
 
-@TeleOp(name="Parent Opmode Example", group="Linear Opmode")
+@TeleOp(name="Parent Opmode", group="Linear Opmode")
 @Disabled
 public class Example_ParentOpMode extends LinearOpMode {
 
@@ -83,11 +83,11 @@ public class Example_ParentOpMode extends LinearOpMode {
 
     double[] PosArray = {servoPosition0, servoPosition1, servoPosition2};
     int spindexerArrayIndex = 0;
-
+    //TODO: Create array for ball colors (uses same index as array for position)
 
     public void initialize(){
         // Initialize the hardware variables. Note that the strings used here as parameters
-        // to 'get' must correspond to the names assigned during the robot configuration
+        // to 'get()' must correspond to the names assigned during the robot configuration
         // step (using the FTC Driver Station app or Driver Hub).
 
         rightFront = hardwareMap.get(DcMotor.class, "rf_drive");
@@ -100,17 +100,18 @@ public class Example_ParentOpMode extends LinearOpMode {
 
         spindexServo = hardwareMap.get(Servo.class, "spindex Servo");
 
-        //Set motor run mode (if using SPARK Mini motor controllers)
+        //Set motor run mode (esp. if using SPARK Mini motor controller(s) for drivetrain)
 
 
         //Set Motor  and servo Directions
-
         rightFront.setDirection(DcMotor.Direction.REVERSE);
         rightBack.setDirection(DcMotor.Direction.REVERSE);
         leftFront.setDirection(DcMotor.Direction.FORWARD);
         leftBack.setDirection(DcMotor.Direction.FORWARD);
 
         spindexServo.setDirection(Servo.Direction.FORWARD);
+
+        //TODO: Add shooter motor and trigger servo directions
 
 
         //Set brake or coast modes.
@@ -183,14 +184,12 @@ public class Example_ParentOpMode extends LinearOpMode {
     public boolean spindex_left_was_Released(){return gamepad1.leftBumperWasReleased();}
 
     public boolean spindex_right(){return gamepad1.right_bumper;}
-    //Look at WasPressed/WasReleased
-    // gamepad1.leftBumperWasReleased() // gamepad1.leftBumperWasPressed()
     public boolean spindex_right_was_pressed(){return gamepad1.rightBumperWasPressed();}
     public boolean spindex_right_was_released(){return gamepad1.rightBumperWasReleased();}
 
     public boolean shotgunspiny (){return gamepad1.a;}
 
-    public boolean shutgunTrigger(){
+    public boolean shotgunTrigger(){
         return gamepad1.right_trigger >0.5;
     }
 
@@ -202,22 +201,8 @@ public class Example_ParentOpMode extends LinearOpMode {
     }
 
 
-    public boolean triggerButton(){
-        return (gamepad1.right_trigger>.25||gamepad2.right_trigger>.25);
-    }
-
-    public boolean triggerButton1(){
-        return (gamepad1.left_trigger>.25||gamepad2.left_trigger>.25);
-    }
-
     /****************************/
     // Emergency Stop Functions
-    // Only one of these is needed.
-    // If using boolean version, call to function will need to be
-    // placed in conditional (if/then) statement with code to break from loop or terminate opmode.
-
-
-
     public void checkEmergencyStop(){
         if(emergencyButtons()){
             stopDrive();
@@ -257,7 +242,6 @@ public class Example_ParentOpMode extends LinearOpMode {
     public void shotgunSpiny(double speed){
         shotgunMotor.setPower(speed);
     }
-
     public void moveTriggerServo(double position){
         shotgunTriggerServo.setPosition(position);
     }
@@ -331,7 +315,27 @@ public class Example_ParentOpMode extends LinearOpMode {
 
 
     public void telemetry(){
-        telemetry.addData("spindex array indexer", spindexerArrayIndex);
-        telemetry.addData("spindex servo position", spindexServo);
+        telemetry.addData("spindex array index", spindexerArrayIndex);
+        telemetry.addData("spindex servo position", spindexServo.getPosition());
     }
 }
+
+/*
+TODO:   not listed in any particular order of importance...
+    .......................................................................................
+    .......................................................................................
+    Shooter - Trigger Servo functions (auto and manual) - should only need 2 positions
+    Shooter - velocity control (needs DcMotorEx...)
+    Intake - intake motor
+    Intake/Spindexer - record ball color in color array
+    Intake/Spindexer - rotate after ball detected
+    Intake/Spindexer - Run intake while cycling spindexer to keep ball in?
+    Spindexer Positions - Limit Switch(es) for pickup/shoot position
+    Spindexer initialization (auto) - Cycle through positions, record ball colors
+    Spindexer - Button to select/cycle to color
+    Shooter/Spindexer - change color to "empty" or similar after successful launch
+    Color Sensor - add sensors for pickup and launch locations.
+        - Launch position used for detection only (distance), no color
+    .......................................................................................
+    .......................................................................................
+*/
