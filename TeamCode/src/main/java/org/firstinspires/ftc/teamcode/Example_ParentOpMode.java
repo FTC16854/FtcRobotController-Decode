@@ -33,6 +33,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -76,6 +77,7 @@ public class Example_ParentOpMode extends LinearOpMode {
     private DcMotor leftFront = null;
     private DcMotor leftBack = null;
     private DcMotor shotgunMotor = null;
+    private DcMotor rubberIntake = null;
 
     private Servo shotgunTriggerServo = null;
     private Servo spindexServo = null;
@@ -106,9 +108,14 @@ public class Example_ParentOpMode extends LinearOpMode {
         leftFront = hardwareMap.get(DcMotor.class,"lf_drive");
         leftBack = hardwareMap.get(DcMotor.class, "lb_drive");
         shotgunMotor = hardwareMap.get(DcMotor.class,"shooter");
+        rubberIntake = hardwareMap.get(DcMotor.class,"intake");
+
+
 
         shotgunTriggerServo = hardwareMap.get(Servo.class, "triggerServo");
         spindexServo = hardwareMap.get(Servo.class, "spindex Servo");
+
+        spindexPositionSwitch = hardwareMap.get(DigitalChannel.class,"spindex position switch");
 
         colorSensor = hardwareMap.get(NormalizedColorSensor.class, "sensor_color");
         colorSensor.setGain(colorSensorGain);
@@ -119,18 +126,19 @@ public class Example_ParentOpMode extends LinearOpMode {
         rightBack.setDirection(DcMotor.Direction.REVERSE);
         leftFront.setDirection(DcMotor.Direction.FORWARD);
         leftBack.setDirection(DcMotor.Direction.FORWARD);
+        shotgunMotor.setDirection(DcMotor.Direction.FORWARD);
+        rubberIntake.setDirection(DcMotorSimple.Direction.FORWARD);
 
         spindexServo.setDirection(Servo.Direction.FORWARD);
-
-        //TODO: Add shooter motor and trigger servo directions
-
+        shotgunTriggerServo.setDirection(Servo.Direction.FORWARD);
 
         //Set brake or coast modes.
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE); //BRAKE or FLOAT (Coast)
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
+        shotgunMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rubberIntake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         //Update Driver Station Status Message after init
         telemetry.addData("Status:", "Initialized");
@@ -181,9 +189,7 @@ public class Example_ParentOpMode extends LinearOpMode {
     //CONTROLLER MAP
 
     // Thumbsticks
-    public double left_sticky_x(){
-        return gamepad1.left_stick_x;
-    }
+    public double left_sticky_x(){return gamepad1.left_stick_x;}
     public double left_sticky_y() { return -gamepad1.left_stick_y;}
     public double right_sticky_y() { return -gamepad1.right_stick_y;}
     public double right_sticky_x() { return  gamepad1.right_stick_x;}
@@ -200,15 +206,14 @@ public class Example_ParentOpMode extends LinearOpMode {
 
     public boolean shotgunspiny (){return gamepad1.a;}
 
-    public boolean shotgunTrigger(){
-        return gamepad1.right_trigger >0.5;
-    }
+    public boolean shotgunTrigger(){return gamepad1.right_trigger >0.5;}
 
+    public boolean rubberIntake(){return gamepad2.left_bumper;}
+    public boolean rubberOuttake(){return gamepad2.right_bumper;}
 
     public boolean emergencyButtons(){
         // check for combination of buttons to be pressed before returning true
         return (gamepad1.b && gamepad1.y) || (gamepad2.b && gamepad2.y);
-
     }
 
 
@@ -240,9 +245,7 @@ public class Example_ParentOpMode extends LinearOpMode {
         telemetry.addData("left speed", left);
     }
 
-    public void stopDrive (){
-        tankdrive(0, 0);
-    }
+    public void stopDrive (){tankdrive(0, 0);}
 
 
 
@@ -250,15 +253,38 @@ public class Example_ParentOpMode extends LinearOpMode {
     /*****************************/
     //shotgun Methods (Functions)
 
-    public void shotgunSpiny(double speed){
-        shotgunMotor.setPower(speed);
-    }
-    public void moveTriggerServo(double position){
-        shotgunTriggerServo.setPosition(position);
-    }
+    public void shotgunSpiny(double speed){shotgunMotor.setPower(speed);}
+    public void moveTriggerServo(double position){shotgunTriggerServo.setPosition(position);}
 
+    public void gunTriggeringSafety(double position){
+        if(SpindexInPosition()){
+            moveTriggerServo(position);
+        }
+    }
     /*****************************/
     //Autonomous Functions
+
+    /****************************/
+    //Motor Functions
+    public void inputRubberMotor() {
+        double shpeed = 0.5;
+
+        if (rubberIntake()) {
+                runRubberMotor(shpeed);
+        } else if (rubberOuttake()) {
+            runRubberMotor(-shpeed);
+        } else{
+            runRubberMotor(0);
+        }
+    }
+
+    public void runRubberMotor(double shpeed){
+        if(shpeed<0) {
+            rubberIntake.setPower(shpeed);
+        } else if (SpindexInPosition()) {
+            rubberIntake.setPower(shpeed);
+        }
+    }
 
     /*****************************/
     //Encoder Functions
@@ -273,13 +299,11 @@ public class Example_ParentOpMode extends LinearOpMode {
 
     /*****************************/
     //Servo Functions
-    public void setServoPosition0(double ServoPos){
-        spindexServo.setPosition(ServoPos);
-    }
+    public void setServoPosition0(double ServoPos){spindexServo.setPosition(ServoPos);}
 
-    public void setSpindexerServo(){
-        setServoPosition0(PosArray[spindexerArrayIndex]);
-    }
+    public void setSpindexerServo(){setServoPosition0(PosArray[spindexerArrayIndex]);}
+
+    public boolean SpindexInPosition(){return  spindexPositionSwitch.getState();}
     //can be made to function like minecraft hotbar, does not yet.
     public void MoveServo(){
         double currentPosition = spindexServo.getPosition();
