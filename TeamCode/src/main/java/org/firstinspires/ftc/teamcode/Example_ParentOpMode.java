@@ -32,6 +32,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
@@ -79,6 +80,7 @@ public class Example_ParentOpMode extends LinearOpMode {
     private DcMotor shotgunMotor = null;
     private DcMotor rubberIntake = null;
 
+    private CRServo TheKeeperOfTheBalls = null;
     private Servo shotgunTriggerServo = null;
     private Servo spindexServo = null;
 
@@ -95,9 +97,6 @@ public class Example_ParentOpMode extends LinearOpMode {
 
     final float colorSensorGain = (float) 17.5;
 
-
-    //TODO: Create array for ball colors (uses same index as array for position)
-
     public void initialize() {
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get()' must correspond to the names assigned during the robot configuration
@@ -110,9 +109,9 @@ public class Example_ParentOpMode extends LinearOpMode {
         shotgunMotor = hardwareMap.get(DcMotor.class, "shooter");
         rubberIntake = hardwareMap.get(DcMotor.class, "intake");
 
-
+        TheKeeperOfTheBalls = hardwareMap.get(CRServo.class,"intakeServo");
         shotgunTriggerServo = hardwareMap.get(Servo.class, "triggerServo");
-        spindexServo = hardwareMap.get(Servo.class, "spindex Servo");
+        spindexServo = hardwareMap.get(Servo.class, "spindexServo");
 
         spindexPositionSwitch = hardwareMap.get(DigitalChannel.class, "spindex position switch");
 
@@ -306,7 +305,6 @@ public class Example_ParentOpMode extends LinearOpMode {
     //Motor Functions
     public void inputRubberMotor() {
         double shpeed = 0.5;
-
         if (rubberIntake()) {
             runRubberMotor(shpeed);
         } else if (rubberOuttake()) {
@@ -316,11 +314,13 @@ public class Example_ParentOpMode extends LinearOpMode {
         }
     }
 
-    public void runRubberMotor(double shpeed) {
+    public void runRubberMotor(double shpeed){
         if (shpeed < 0) {
             rubberIntake.setPower(shpeed);
+            runBallKeeper(true);
         } else if (SpindexInPosition()) {
             rubberIntake.setPower(shpeed);
+            runBallKeeper(false);
         }
     }
 
@@ -341,12 +341,25 @@ public class Example_ParentOpMode extends LinearOpMode {
         spindexServo.setPosition(ServoPos);
     }
 
+    public void runBallKeeper(boolean backwards) {
+        if (!backwards){
+            TheKeeperOfTheBalls.setPower(1);
+        }else if(backwards){
+            TheKeeperOfTheBalls.setPower(-1);
+        }else{
+            TheKeeperOfTheBalls.setPower(0);
+        }
+    }
     public void setSpindexerServo() {
         setServoPosition0(PosArray[spindexerArrayIndex]);
     }
 
     public boolean SpindexInPosition() {
         return !spindexPositionSwitch.getState();
+    }
+
+    public void SetSpindexPositionToShotgun(int spindexerIndex){
+        //TODO: This function
     }
 
     //can be made to function like minecraft hotbar, does not yet.
