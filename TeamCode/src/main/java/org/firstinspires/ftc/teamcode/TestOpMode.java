@@ -129,6 +129,7 @@ public class TestOpMode extends Example_ParentOpMode {
             MoveServo();
             setSpindexerServo();
             telemetry();
+            autoRead();
 
 
             checkEmergencyStop(); // Stops motors and Terminates if buttons are pressed

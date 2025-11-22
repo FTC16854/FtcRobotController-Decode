@@ -98,24 +98,23 @@ public class Example_ParentOpMode extends LinearOpMode {
 
     //TODO: Create array for ball colors (uses same index as array for position)
 
-    public void initialize(){
+    public void initialize() {
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get()' must correspond to the names assigned during the robot configuration
         // step (using the FTC Driver Station app or Driver Hub).
 
         rightFront = hardwareMap.get(DcMotor.class, "rf_drive");
         rightBack = hardwareMap.get(DcMotor.class, "rb_drive");
-        leftFront = hardwareMap.get(DcMotor.class,"lf_drive");
+        leftFront = hardwareMap.get(DcMotor.class, "lf_drive");
         leftBack = hardwareMap.get(DcMotor.class, "lb_drive");
-        shotgunMotor = hardwareMap.get(DcMotor.class,"shooter");
-        rubberIntake = hardwareMap.get(DcMotor.class,"intake");
-
+        shotgunMotor = hardwareMap.get(DcMotor.class, "shooter");
+        rubberIntake = hardwareMap.get(DcMotor.class, "intake");
 
 
         shotgunTriggerServo = hardwareMap.get(Servo.class, "triggerServo");
         spindexServo = hardwareMap.get(Servo.class, "spindex Servo");
 
-        spindexPositionSwitch = hardwareMap.get(DigitalChannel.class,"spindex position switch");
+        spindexPositionSwitch = hardwareMap.get(DigitalChannel.class, "spindex position switch");
 
         colorSensor = hardwareMap.get(NormalizedColorSensor.class, "sensor_color");
         colorSensor.setGain(colorSensorGain);
@@ -156,8 +155,8 @@ public class Example_ParentOpMode extends LinearOpMode {
         initialize();
 
         // Init loop - optional
-        while(opModeInInit()){
-            telemetry.addData("Cheese and Pickles ","Sandwich!");
+        while (opModeInInit()) {
+            telemetry.addData("Cheese and Pickles ", "Sandwich!");
             // Code in here will loop continuously until OpMode is started
         }
 
@@ -189,29 +188,65 @@ public class Example_ParentOpMode extends LinearOpMode {
     //CONTROLLER MAP
 
     // Thumbsticks
-    public double left_sticky_x(){return gamepad1.left_stick_x;}
-    public double left_sticky_y() { return -gamepad1.left_stick_y;}
-    public double right_sticky_y() { return -gamepad1.right_stick_y;}
-    public double right_sticky_x() { return  gamepad1.right_stick_x;}
-    
+    public double left_sticky_x() {
+        return gamepad1.left_stick_x;
+    }
+
+    public double left_sticky_y() {
+        return -gamepad1.left_stick_y;
+    }
+
+    public double right_sticky_y() {
+        return -gamepad1.right_stick_y;
+    }
+
+    public double right_sticky_x() {
+        return gamepad1.right_stick_x;
+    }
+
 
     // Buttons
-    public boolean spindex_left(){return gamepad1.left_bumper;}
-    public boolean spindex_left_was_pressed(){return gamepad1.leftBumperWasPressed();}
-    public boolean spindex_left_was_Released(){return gamepad1.leftBumperWasReleased();}
+    public boolean spindex_left() {
+        return gamepad1.left_bumper;
+    }
 
-    public boolean spindex_right(){return gamepad1.right_bumper;}
-    public boolean spindex_right_was_pressed(){return gamepad1.rightBumperWasPressed();}
-    public boolean spindex_right_was_released(){return gamepad1.rightBumperWasReleased();}
+    public boolean spindex_left_was_pressed() {
+        return gamepad1.leftBumperWasPressed();
+    }
 
-    public boolean shotgunspiny (){return gamepad1.a;}
+    public boolean spindex_left_was_Released() {
+        return gamepad1.leftBumperWasReleased();
+    }
 
-    public boolean shotgunTrigger(){return gamepad1.right_trigger >0.5;}
+    public boolean spindex_right() {
+        return gamepad1.right_bumper;
+    }
 
-    public boolean rubberIntake(){return gamepad2.left_bumper;}
-    public boolean rubberOuttake(){return gamepad2.right_bumper;}
+    public boolean spindex_right_was_pressed() {
+        return gamepad1.rightBumperWasPressed();
+    }
 
-    public boolean emergencyButtons(){
+    public boolean spindex_right_was_released() {
+        return gamepad1.rightBumperWasReleased();
+    }
+
+    public boolean shotgunspiny() {
+        return gamepad1.a;
+    }
+
+    public boolean shotgunTrigger() {
+        return gamepad1.right_trigger > 0.5;
+    }
+
+    public boolean rubberIntake() {
+        return gamepad2.left_bumper;
+    }
+
+    public boolean rubberOuttake() {
+        return gamepad2.right_bumper;
+    }
+
+    public boolean emergencyButtons() {
         // check for combination of buttons to be pressed before returning true
         return (gamepad1.b && gamepad1.y) || (gamepad2.b && gamepad2.y);
     }
@@ -219,14 +254,13 @@ public class Example_ParentOpMode extends LinearOpMode {
 
     /****************************/
     // Emergency Stop Functions
-    public void checkEmergencyStop(){
-        if(emergencyButtons()){
+    public void checkEmergencyStop() {
+        if (emergencyButtons()) {
             stopDrive();
             //stop all motors, servos, etc.
             terminateOpModeNow();   // Force exit of OpMode
         }
     }
-
 
 
     /*****************************/
@@ -235,9 +269,9 @@ public class Example_ParentOpMode extends LinearOpMode {
     // Assign left and right drive speed using arguments/parameters rather than hardcoding
     // thumb stick values inside function body. This will allow tank drive to be reused for
     // autonomous programs without additional work
-    public void tankdrive(double left, double right){
+    public void tankdrive(double left, double right) {
         rightFront.setPower(right);
-        rightBack. setPower(right);
+        rightBack.setPower(right);
         leftFront.setPower(left);
         leftBack.setPower(left);
 
@@ -245,19 +279,23 @@ public class Example_ParentOpMode extends LinearOpMode {
         telemetry.addData("left speed", left);
     }
 
-    public void stopDrive (){tankdrive(0, 0);}
-
-
+    public void stopDrive() {
+        tankdrive(0, 0);
+    }
 
 
     /*****************************/
     //shotgun Methods (Functions)
+    public void shotgunSpiny(double speed) {
+        shotgunMotor.setPower(speed);
+    }
 
-    public void shotgunSpiny(double speed){shotgunMotor.setPower(speed);}
-    public void moveTriggerServo(double position){shotgunTriggerServo.setPosition(position);}
+    public void moveTriggerServo(double position) {
+        shotgunTriggerServo.setPosition(position);
+    }
 
-    public void gunTriggeringSafety(double position){
-        if(SpindexInPosition()){
+    public void gunTriggeringSafety(double position) {
+        if (SpindexInPosition()) {
             moveTriggerServo(position);
         }
     }
@@ -270,16 +308,16 @@ public class Example_ParentOpMode extends LinearOpMode {
         double shpeed = 0.5;
 
         if (rubberIntake()) {
-                runRubberMotor(shpeed);
+            runRubberMotor(shpeed);
         } else if (rubberOuttake()) {
             runRubberMotor(-shpeed);
-        } else{
+        } else {
             runRubberMotor(0);
         }
     }
 
-    public void runRubberMotor(double shpeed){
-        if(shpeed<0) {
+    public void runRubberMotor(double shpeed) {
+        if (shpeed < 0) {
             rubberIntake.setPower(shpeed);
         } else if (SpindexInPosition()) {
             rubberIntake.setPower(shpeed);
@@ -299,27 +337,34 @@ public class Example_ParentOpMode extends LinearOpMode {
 
     /*****************************/
     //Servo Functions
-    public void setServoPosition0(double ServoPos){spindexServo.setPosition(ServoPos);}
+    public void setServoPosition0(double ServoPos) {
+        spindexServo.setPosition(ServoPos);
+    }
 
-    public void setSpindexerServo(){setServoPosition0(PosArray[spindexerArrayIndex]);}
+    public void setSpindexerServo() {
+        setServoPosition0(PosArray[spindexerArrayIndex]);
+    }
 
-    public boolean SpindexInPosition(){return  spindexPositionSwitch.getState();}
+    public boolean SpindexInPosition() {
+        return !spindexPositionSwitch.getState();
+    }
+
     //can be made to function like minecraft hotbar, does not yet.
-    public void MoveServo(){
+    public void MoveServo() {
         double currentPosition = spindexServo.getPosition();
 
         boolean moveLeft = false;
         boolean moveRight = false;
 
-        if(spindex_left_was_Released() || spindex_left_was_pressed()){
+        if (spindex_left_was_Released()) {
             moveLeft = true;
         }
 
-        if(spindex_right_was_released() || spindex_right_was_pressed()){
+        if (spindex_right_was_released()) {
             moveRight = true;
         }
 
-        if (moveRight || moveLeft){
+        if (moveRight || moveLeft) {
 
             if (spindexerArrayIndex == 0) {
                 if (moveRight) {
@@ -359,16 +404,19 @@ public class Example_ParentOpMode extends LinearOpMode {
         }
     }
 
-    public void ColorIs() {
+    public String ColorIs() {
+        String Color = "";
         if (IsBall()) {
             if (ColorGreen()) {
-                telemetry.addData("Color: ", "green");
+                Color = "Green";
             } else {
-                telemetry.addData("Color: ", "purple");
+                Color = "Purple";
             }
         } else {
-            telemetry.addData("Color: ", "none");
+            Color = "None";
         }
+        telemetry.addData("Color is", Color);
+        return Color;
     }
 
     public boolean IsBall() {
@@ -379,6 +427,16 @@ public class Example_ParentOpMode extends LinearOpMode {
         } else {
             return false;
         }
+    }
+
+    public void autoRead() {
+        if (SpindexInPosition()) {
+            ColorToPos();
+        }
+    }
+
+    public void ColorToPos(){
+        colorArray[spindexerArrayIndex] = ColorIs();
     }
 
     public void colorTelemetry(){
@@ -400,12 +458,16 @@ public class Example_ParentOpMode extends LinearOpMode {
     }
 
     public void telemetry(){
+        telemetry.addData("Spindex in position", SpindexInPosition());
         telemetry.addData("spindex array index", spindexerArrayIndex);
         telemetry.addData("spindex servo position", spindexServo.getPosition());
         telemetry.addData("L pressed",gamepad1.leftBumperWasPressed());
         telemetry.addData("R pressed",gamepad1.rightBumperWasPressed());
         telemetry.addData("L released",gamepad1.leftBumperWasReleased());
         telemetry.addData("R released",gamepad1.rightBumperWasReleased());
+        for (int i = 0; i<3; i++){
+            telemetry.addData("color in index " + i, colorArray[i]);
+        }
         colorTelemetry();
         ColorIs();
     }
@@ -418,9 +480,10 @@ TODO:   not listed in any particular order of importance...
     Shooter - Trigger Servo functions (auto and manual) - should only need 2 positions
     Shooter - velocity control (needs DcMotorEx...)
     Intake - intake motor
-    Intake/Spindexer - record ball color in color array
+    Intake/Spindexer - record ball color in color array X
     Intake/Spindexer - rotate after ball detected
     Intake/Spindexer - Run intake while cycling spindexer to keep ball in?
+    Intake/Spindexer - Reverse intake to eject extra ball
     Spindexer - Fix Edge-detection (wasPressed/WasReleased)
     Spindexer Positions - Limit Switch(es) for pickup/shoot position
     Spindexer initialization (auto) - Cycle through positions, record ball colors
