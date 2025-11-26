@@ -94,6 +94,7 @@ public class Example_ParentOpMode extends LinearOpMode {
     String[] colorArray = new String[3];
     double[] PosArray = {servoPosition0, servoPosition1, servoPosition2};
     int spindexerArrayIndex = 0;
+    int ShootgunIndex = 2;
 
     final float colorSensorGain = (float) 17.5;
 
@@ -350,6 +351,7 @@ public class Example_ParentOpMode extends LinearOpMode {
             TheKeeperOfTheBalls.setPower(0);
         }
     }
+
     public void setSpindexerServo() {
         setServoPosition0(PosArray[spindexerArrayIndex]);
     }
@@ -362,8 +364,10 @@ public class Example_ParentOpMode extends LinearOpMode {
         //TODO: This function
     }
 
+
+
     //can be made to function like minecraft hotbar, does not yet.
-    public void MoveServo() {
+    public void MovespindexServo() {
         double currentPosition = spindexServo.getPosition();
 
         boolean moveLeft = false;
@@ -398,6 +402,12 @@ public class Example_ParentOpMode extends LinearOpMode {
             }
             moveRight = false;
             moveLeft = false;
+        }
+        if (spindexerArrayIndex == 0){
+            ShootgunIndex = 2;
+        }
+        else{
+            ShootgunIndex = spindexerArrayIndex -1;
         }
         setSpindexerServo();
     }
@@ -452,6 +462,16 @@ public class Example_ParentOpMode extends LinearOpMode {
         colorArray[spindexerArrayIndex] = ColorIs();
     }
 
+    public String getbulletcolor(){
+        int colorIndex;
+        if (ShootgunIndex == 2) {
+            colorIndex = 0;
+        }else {
+            colorIndex = ShootgunIndex +1;
+        }
+        return colorArray [colorIndex];
+    }
+
     public void colorTelemetry(){
         final float[] hsvValues = new float[3];
         NormalizedRGBA colors = colorSensor.getNormalizedColors();
@@ -481,6 +501,9 @@ public class Example_ParentOpMode extends LinearOpMode {
         for (int i = 0; i<3; i++){
             telemetry.addData("color in index " + i, colorArray[i]);
         }
+
+        telemetry.addData("color in Shotgun ",getbulletcolor());
+
         colorTelemetry();
         ColorIs();
     }
@@ -497,15 +520,12 @@ TODO:   not listed in any particular order of importance...
     Intake/Spindexer - rotate after ball detected
     Intake/Spindexer - Run intake while cycling spindexer to keep ball in?
     Intake/Spindexer - Reverse intake to eject extra ball
-    Spindexer - Fix Edge-detection (wasPressed/WasReleased)
-    Spindexer Positions - Limit Switch(es) for pickup/shoot position
     Spindexer initialization (auto) - Cycle through positions, record ball colors
     Spindexer - Button to select/cycle to color
     Shooter/Spindexer - change color to "empty" or similar after successful launch
     Color Sensor - add sensors for pickup and launch locations.
         - Launch position used for detection only (distance), no color
         - Integrate Color sensor code into ParentOpMode
-            - Color sensor for intake
             - Color (Distance) sensor for shooter
     .......................................................................................
     .......................................................................................
