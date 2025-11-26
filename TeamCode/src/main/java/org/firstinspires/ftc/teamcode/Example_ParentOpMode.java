@@ -467,9 +467,9 @@ public class Example_ParentOpMode extends LinearOpMode {
         if (ShootgunIndex == 2) {
             colorIndex = 0;
         }else {
-            colorIndex = ShootgunIndex +1;
+            colorIndex = ShootgunIndex + 1;
         }
-        return colorArray [colorIndex];
+        return colorArray[colorIndex];
     }
 
     public void colorTelemetry(){
@@ -501,7 +501,7 @@ public class Example_ParentOpMode extends LinearOpMode {
         for (int i = 0; i<3; i++){
             telemetry.addData("color in index " + i, colorArray[i]);
         }
-
+        telemetry.addData("Shotgun Index",ShootgunIndex);
         telemetry.addData("color in Shotgun ",getbulletcolor());
 
         colorTelemetry();
