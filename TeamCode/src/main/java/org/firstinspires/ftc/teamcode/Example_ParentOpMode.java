@@ -71,30 +71,42 @@ public class Example_ParentOpMode extends LinearOpMode {
 
     // Declare OpMode members, hardware variables
     public ElapsedTime runtime = new ElapsedTime();
-    private NormalizedColorSensor colorSensor;
-
+    private NormalizedColorSensor bulletIntakeColorSensor;
+    private NormalizedColorSensor shotgunLoadingColorSensor;
+    //Drivetrain motors
     private DcMotor rightFront = null;
     private DcMotor rightBack = null;
     private DcMotor leftFront = null;
     private DcMotor leftBack = null;
+
+    //shotgun motor
     private DcMotor shotgunMotor = null;
+
+    //intake motor
     private DcMotor rubberIntake = null;
 
+    //spindexer hardware
     private CRServo TheKeeperOfTheBalls = null;
     private Servo shotgunTriggerServo = null;
     private Servo spindexServo = null;
-
     private DigitalChannel spindexPositionSwitch = null;
+
     //Other Global Variables
     //put global variables here...
-    double servoPosition0 = 0;
-    double servoPosition1 = 0.33;
-    double servoPosition2 = 0.67;
+    double servoPosition0 = 0;      // The first position that the spindexer servo can turn to
+    double servoPosition1 = 0.33;   // The second position that the spindexer servo can turn to
+    double servoPosition2 = 0.67;   // The third position that the spindexer servo can turn to
 
-    String[] colorArray = new String[3];
-    double[] PosArray = {servoPosition0, servoPosition1, servoPosition2};
-    int spindexerArrayIndex = 0;
-    int ShootgunIndex = 2;
+    String[] colorArray = new String[3];    // The colors of the different balls in the spindexer
+    double[] PosArray = {servoPosition0, servoPosition1, servoPosition2};   // The different positions that the spindexer servo can turn to
+    int spindexerArrayIndex = 0;            // For the color array, the index of the ball in the intake position
+    int ShootgunIndex = 2;                  // For the color array, the index of the ball in the shooter position
+    String tempBulletColor;
+    boolean tempBulletolorIsSaved = false;
+
+    double triggerDown = 0;
+    double triggerUp = 0.2;
+
 
     final float colorSensorGain = (float) 17.5;
 
@@ -116,8 +128,10 @@ public class Example_ParentOpMode extends LinearOpMode {
 
         spindexPositionSwitch = hardwareMap.get(DigitalChannel.class, "spindex position switch");
 
-        colorSensor = hardwareMap.get(NormalizedColorSensor.class, "sensor_color");
-        colorSensor.setGain(colorSensorGain);
+        bulletIntakeColorSensor = hardwareMap.get(NormalizedColorSensor.class, "sensor_color");
+        bulletIntakeColorSensor.setGain(colorSensorGain);
+        shotgunLoadingColorSensor = hardwareMap.get(NormalizedColorSensor.class, "shotgun_color");
+        shotgunLoadingColorSensor.setGain(colorSensorGain);
         //Set motor run mode (esp. if using SPARK Mini motor controller(s) for drivetrain)
 
         //Set Motor  and servo Directions
@@ -230,19 +244,19 @@ public class Example_ParentOpMode extends LinearOpMode {
         return gamepad1.rightBumperWasReleased();
     }
 
-    public boolean shotgunspiny() {
+    public boolean shotgunSpinyPB() {
         return gamepad1.a;
     }
 
-    public boolean shotgunTrigger() {
+    public boolean shotgunTriggerPB() {
         return gamepad1.right_trigger > 0.5;
     }
 
-    public boolean rubberIntake() {
+    public boolean rubberIntakePB() {
         return gamepad2.left_bumper;
     }
 
-    public boolean rubberOuttake() {
+    public boolean rubberOuttakePB() {
         return gamepad2.right_bumper;
     }
 
@@ -294,11 +308,63 @@ public class Example_ParentOpMode extends LinearOpMode {
         shotgunTriggerServo.setPosition(position);
     }
 
-    public void gunTriggeringSafety(double position) {
+    public void gunTriggerSafety(double position) {
         if (SpindexInPosition()) {
+            if (position == triggerUp){
+                telemetry.addData("shooting","yes");
+            }else{
+                telemetry.addData("shooting", "no");
+            }
+
             moveTriggerServo(position);
+            didShooterShoot();
         }
     }
+
+    // Matt we don't know if you want this but we tried - HJO & KB
+    //This is to see if the shotgun shoots or not and updates the color array if needed/worked
+    public boolean didShooterShoot(){
+        if (ShotgunHasBall()){
+            return false;
+        }else {
+            colorArray[ShootgunIndex]="None";
+            return true;
+        }
+    }
+
+    public void controlOfShotgunShotSpeed(){
+        double shped = 0.5;
+
+        if (ShotgunHasBall()){
+            if (tempBulletColor == "None"){
+                tempBulletColor = colorArray[ShootgunIndex];
+            }else {
+                colorArray[ShootgunIndex] = tempBulletColor;
+            }
+        }
+
+        if (shotgunSpinyPB()){
+
+            shotgunSpiny(shped);
+        } else {
+            shotgunSpiny(0);
+        }
+
+        if (shotgunTriggerPB()){
+            gunTriggerSafety(triggerUp);
+            //Added didShooterShoot() to gunTriggerSafety()
+        } else {
+            gunTriggerSafety(triggerDown);
+
+        }
+
+
+
+
+    }
+
+
+
     /*****************************/
     //Autonomous Functions
 
@@ -306,11 +372,16 @@ public class Example_ParentOpMode extends LinearOpMode {
     //Motor Functions
     public void inputRubberMotor() {
         double shpeed = 0.5;
-        if (rubberIntake()) {
+        if (rubberIntakePB()) {
             runRubberMotor(shpeed);
-        } else if (rubberOuttake()) {
+        } else if (rubberOuttakePB()) {
             runRubberMotor(-shpeed);
-        } else {
+        }
+        // test if spindexer is not in posittion. it moves it
+        /* else if (!SpindexInPosition()){
+            runRubberMotor(shpeed/5);
+        } */
+        else {
             runRubberMotor(0);
         }
     }
@@ -417,7 +488,7 @@ public class Example_ParentOpMode extends LinearOpMode {
         int MinGreen = 80;
 
         final float[] hsvValues = new float[3];
-        NormalizedRGBA colors = colorSensor.getNormalizedColors();
+        NormalizedRGBA colors = bulletIntakeColorSensor.getNormalizedColors();
         Color.colorToHSV(colors.toColor(), hsvValues);
 
         if (hsvValues[0] >= MinGreen && hsvValues[0] <= MaxGreen) {
@@ -445,9 +516,21 @@ public class Example_ParentOpMode extends LinearOpMode {
     public boolean IsBall() {
         double DistanceSensing = 5;
         if
-        (((DistanceSensor) colorSensor).getDistance(DistanceUnit.CM) < DistanceSensing) {
+        (((DistanceSensor) bulletIntakeColorSensor).getDistance(DistanceUnit.CM) < DistanceSensing) {
             return true;
         } else {
+            return false;
+        }
+    }
+
+    public boolean ShotgunHasBall() {
+        double DistanceSensing = 5;
+        if
+        (((DistanceSensor) shotgunLoadingColorSensor).getDistance(DistanceUnit.CM) < DistanceSensing) {
+            telemetry.addData("ShotgunHasBall", "yes");
+            return true;
+        } else {
+            telemetry.addData("ShotgunHasBall", "no");
             return false;
         }
     }
@@ -474,33 +557,35 @@ public class Example_ParentOpMode extends LinearOpMode {
 
     public void colorTelemetry(){
         final float[] hsvValues = new float[3];
-        NormalizedRGBA colors = colorSensor.getNormalizedColors();
+        NormalizedRGBA colors = bulletIntakeColorSensor.getNormalizedColors();
         Color.colorToHSV(colors.toColor(), hsvValues);
 
-        telemetry.addData("Distance (cm)", "%.3f", ((DistanceSensor) colorSensor).getDistance(DistanceUnit.CM));
-
-        telemetry.addLine()
-                .addData("Red", "%.3f", colors.red)
-                .addData("Green", "%.3f", colors.green)
-                .addData("Blue", "%.3f", colors.blue);
-        telemetry.addLine()
-                .addData("Hue", "%.3f", hsvValues[0])
-                .addData("Saturation", "%.3f", hsvValues[1])
-                .addData("Value", "%.3f", hsvValues[2]);
-        telemetry.addData("Alpha", "%.3f", colors.alpha);
+        telemetry.addData("Distance (cm)", "%.3f", ((DistanceSensor) bulletIntakeColorSensor).getDistance(DistanceUnit.CM));
+//
+//        telemetry.addLine()
+//                .addData("Red", "%.3f", colors.red)
+//                .addData("Green", "%.3f", colors.green)
+//                .addData("Blue", "%.3f", colors.blue);
+//        telemetry.addLine()
+//                .addData("Hue", "%.3f", hsvValues[0])
+//                .addData("Saturation", "%.3f", hsvValues[1])
+//                .addData("Value", "%.3f", hsvValues[2]);
+//        telemetry.addData("Alpha", "%.3f", colors.alpha);
     }
 
     public void telemetry(){
         telemetry.addData("Spindex in position", SpindexInPosition());
-        telemetry.addData("spindex array index", spindexerArrayIndex);
+
         telemetry.addData("spindex servo position", spindexServo.getPosition());
-        telemetry.addData("L pressed",gamepad1.leftBumperWasPressed());
-        telemetry.addData("R pressed",gamepad1.rightBumperWasPressed());
+//        telemetry.addData("L pressed",gamepad1.leftBumperWasPressed());
+//        telemetry.addData("R pressed",gamepad1.rightBumperWasPressed());
         telemetry.addData("L released",gamepad1.leftBumperWasReleased());
         telemetry.addData("R released",gamepad1.rightBumperWasReleased());
+
         for (int i = 0; i<3; i++){
             telemetry.addData("color in index " + i, colorArray[i]);
         }
+        telemetry.addData("spindex array index", spindexerArrayIndex);
         telemetry.addData("Shotgun Index",ShootgunIndex);
         telemetry.addData("color in Shotgun ",getbulletcolor());
 
@@ -526,7 +611,6 @@ TODO:   not listed in any particular order of importance...
     Color Sensor - add sensors for pickup and launch locations.
         - Launch position used for detection only (distance), no color
         - Integrate Color sensor code into ParentOpMode
-            - Color (Distance) sensor for shooter
     .......................................................................................
     .......................................................................................
 */
