@@ -29,6 +29,7 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -42,6 +43,8 @@ import android.graphics.Color;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
+
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 /**
@@ -91,7 +94,14 @@ public class Example_ParentOpMode extends LinearOpMode {
     private Servo spindexServo = null;
     private DigitalChannel spindexPositionSwitch = null;
 
+    //Parking System
+    private Servo snailServo = null;
+
+    //other Systems
+    SparkFunOTOS OdometrySensor;
+
     //Other Global Variables
+    SparkFunOTOS.Pose2D pos;
     //put global variables here...
     double servoPosition0 = 0;      // The first position that the spindexer servo can turn to
     double servoPosition1 = 0.33;   // The second position that the spindexer servo can turn to
@@ -125,8 +135,12 @@ public class Example_ParentOpMode extends LinearOpMode {
         TheKeeperOfTheBalls = hardwareMap.get(CRServo.class,"intakeServo");
         shotgunTriggerServo = hardwareMap.get(Servo.class, "triggerServo");
         spindexServo = hardwareMap.get(Servo.class, "spindexServo");
+        snailServo = hardwareMap.get(Servo.class, "snail_servo");
 
         spindexPositionSwitch = hardwareMap.get(DigitalChannel.class, "spindex position switch");
+
+        OdometrySensor = hardwareMap.get(SparkFunOTOS .class, "sensor_otos");
+        configureOtos();
 
         bulletIntakeColorSensor = hardwareMap.get(NormalizedColorSensor.class, "sensor_color");
         bulletIntakeColorSensor.setGain(colorSensorGain);
@@ -144,7 +158,7 @@ public class Example_ParentOpMode extends LinearOpMode {
 
         spindexServo.setDirection(Servo.Direction.FORWARD);
         shotgunTriggerServo.setDirection(Servo.Direction.FORWARD);
-
+        snailServo.setDirection(Servo.Direction.FORWARD);
         //Set brake or coast modes.
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE); //BRAKE or FLOAT (Coast)
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -202,68 +216,28 @@ public class Example_ParentOpMode extends LinearOpMode {
     //CONTROLLER MAP
 
     // Thumbsticks
-    public double left_sticky_x() {
-        return gamepad1.left_stick_x;
-    }
-
-    public double left_sticky_y() {
-        return -gamepad1.left_stick_y;
-    }
-
-    public double right_sticky_y() {
-        return -gamepad1.right_stick_y;
-    }
-
-    public double right_sticky_x() {
-        return gamepad1.right_stick_x;
-    }
-
+    public double left_sticky_x() {return gamepad1.left_stick_x;}
+    public double left_sticky_y() {return -gamepad1.left_stick_y;}
+    public double right_sticky_y() {return -gamepad1.right_stick_y;}
+    public double right_sticky_x() {return gamepad1.right_stick_x;}
 
     // Buttons
-    public boolean spindex_left() {
-        return gamepad1.left_bumper;
-    }
-
-    public boolean spindex_left_was_pressed() {
-        return gamepad1.leftBumperWasPressed();
-    }
-
-    public boolean spindex_left_was_Released() {
-        return gamepad1.leftBumperWasReleased();
-    }
-
-    public boolean spindex_right() {
-        return gamepad1.right_bumper;
-    }
-
-    public boolean spindex_right_was_pressed() {
-        return gamepad1.rightBumperWasPressed();
-    }
-
-    public boolean spindex_right_was_released() {
-        return gamepad1.rightBumperWasReleased();
-    }
-
-    public boolean shotgunSpinyPB() {
-        return gamepad1.a;
-    }
-
-    public boolean shotgunTriggerPB() {
-        return gamepad1.right_trigger > 0.5;
-    }
-
-    public boolean rubberIntakePB() {
-        return gamepad2.left_bumper;
-    }
-
-    public boolean rubberOuttakePB() {
-        return gamepad2.right_bumper;
-    }
-
+    public boolean spindex_left() {return gamepad1.left_bumper;}
+    public boolean spindex_left_was_pressed() {return gamepad1.leftBumperWasPressed();}
+    public boolean spindex_left_was_Released() {return gamepad1.leftBumperWasReleased();}
+    public boolean spindex_right() {return gamepad1.right_bumper;}
+    public boolean spindex_right_was_pressed() {return gamepad1.rightBumperWasPressed();}
+    public boolean spindex_right_was_released() {return gamepad1.rightBumperWasReleased();}
+    public boolean shotgunSpinyPB() {return gamepad1.a;}
+    public boolean shotgunTriggerPB() {return gamepad1.right_trigger > 0.5;}
+    public boolean rubberIntakePB() {return gamepad2.left_bumper;}
+    public boolean rubberOuttakePB() {return gamepad2.right_bumper;}
+    public boolean FieldCentricReset() {return gamepad1.back;}
     public boolean emergencyButtons() {
         // check for combination of buttons to be pressed before returning true
         return (gamepad1.b && gamepad1.y) || (gamepad2.b && gamepad2.y);
     }
+    public boolean Snail(){return gamepad2.a;}
 
 
     /****************************/
@@ -438,7 +412,7 @@ public class Example_ParentOpMode extends LinearOpMode {
 
 
     //can be made to function like minecraft hotbar, does not yet.
-    public void MovespindexServo() {
+    public void  MovespindexServo(){
         double currentPosition = spindexServo.getPosition();
 
         boolean moveLeft = false;
@@ -591,6 +565,177 @@ public class Example_ParentOpMode extends LinearOpMode {
 
         colorTelemetry();
         ColorIs();
+    }
+
+    public double getAngler() {
+        double angle;
+
+        pos = OdometrySensor.getPosition();
+
+
+        angle = pos.h;
+        return angle;
+    }
+
+    public void holonomicFieldCentric (){
+        double rotateVelocity = right_sticky_x();
+
+        double offset = Math.toRadians(90);
+        double robotHead = getAngler();
+
+        double angle = Math.atan2(left_sticky_y(), left_sticky_x()) - Math.toRadians(robotHead) - offset;
+        double magnitude = Math.hypot(left_sticky_x(), left_sticky_y());
+
+        double Vlf = (magnitude * Math.cos(angle +(Math.PI/4))+rotateVelocity);
+        double Vlb = (magnitude * Math.sin(angle +(Math.PI/4))+rotateVelocity);
+        double Vrf = (magnitude * Math.sin(angle +(Math.PI/4))-rotateVelocity);
+        double Vrb = (magnitude * Math.cos(angle +(Math.PI/4))-rotateVelocity);
+
+        leftFront.setPower(Vlf);
+        leftBack.setPower(Vlb);
+        rightFront.setPower(Vrf);
+        rightBack.setPower(Vrb);
+
+        if (FieldCentricReset()) {
+            ZeroOtosSensor();
+        }
+
+        telemetry.addData("lf", Vlf);
+        telemetry.addData("lb", Vlb);
+        telemetry.addData("rf", Vrf);
+        telemetry.addData("rb", Vrb);
+
+
+//        telemetry.addData("robot heading", robotHead);
+        telemetry.addData("robot heading", robotHead);
+        telemetry.addData("drive angle", Math.toDegrees(angle));
+    }
+
+    private void configureOtos() {
+        telemetry.addLine("Configuring OTOS...");
+        telemetry.update();
+
+        // Set the desired units for linear and angular measurements. Can be either
+        // meters or inches for linear, and radians or degrees for angular. If not
+        // set, the default is inches and degrees. Note that this setting is not
+        // persisted in the sensor, so you need to set at the start of all your
+        // OpModes if using the non-default value.
+        // myOtos.setLinearUnit(DistanceUnit.METER);
+        OdometrySensor.setLinearUnit(DistanceUnit.INCH);
+        // myOtos.setAngularUnit(AnguleUnit.RADIANS);
+        OdometrySensor.setAngularUnit(AngleUnit.DEGREES);
+
+        // Assuming you've mounted your sensor to a robot and it's not centered,
+        // you can specify the offset for the sensor relative to the center of the
+        // robot. The units default to inches and degrees, but if you want to use
+        // different units, specify them before setting the offset! Note that as of
+        // firmware version 1.0, these values will be lost after a power cycle, so
+        // you will need to set them each time you power up the sensor. For example, if
+        // the sensor is mounted 5 inches to the left (negative X) and 10 inches
+        // forward (positive Y) of the center of the robot, and mounted 90 degrees
+        // clockwise (negative rotation) from the robot's orientation, the offset
+        // would be {-5, 10, -90}. These can be any value, even the angle can be
+        // tweaked slightly to compensate for imperfect mounting (eg. 1.3 degrees).
+        SparkFunOTOS.Pose2D offset = new SparkFunOTOS.Pose2D(0, 0, -90);
+        OdometrySensor.setOffset(offset);
+
+        // Here we can set the linear and angular scalars, which can compensate for
+        // scaling issues with the sensor measurements. Note that as of firmware
+        // version 1.0, these values will be lost after a power cycle, so you will
+        // need to set them each time you power up the sensor. They can be any value
+        // from 0.872 to 1.127 in increments of 0.001 (0.1%). It is recommended to
+        // first set both scalars to 1.0, then calibrate the angular scalar, then
+        // the linear scalar. To calibrate the angular scalar, spin the robot by
+        // multiple rotations (eg. 10) to get a precise error, then set the scalar
+        // to the inverse of the error. Remember that the angle wraps from -180 to
+        // 180 degrees, so for example, if after 10 rotations counterclockwise
+        // (positive rotation), the sensor reports -15 degrees, the required scalar
+        // would be 3600/3585 = 1.004. To calibrate the linear scalar, move the
+        // robot a known distance and measure the error; do this multiple times at
+        // multiple speeds to get an average, then set the linear scalar to the
+        // inverse of the error. For example, if you move the robot 100 inches and
+        // the sensor reports 103 inches, set the linear scalar to 100/103 = 0.971
+        OdometrySensor.setLinearScalar(117.75/99.7468);
+        OdometrySensor.setAngularScalar(1.0);
+
+        // The IMU on the OTOS includes a gyroscope and accelerometer, which could
+        // have an offset. Note that as of firmware version 1.0, the calibration
+        // will be lost after a power cycle; the OTOS performs a quick calibration
+        // when it powers up, but it is recommended to perform a more thorough
+        // calibration at the start of all your OpModes. Note that the sensor must
+        // be completely stationary and flat during calibration! When calling
+        // calibrateImu(), you can specify the number of samples to take and whether
+        // to wait until the calibration is complete. If no parameters are provided,
+        // it will take 255 samples and wait until done; each sample takes about
+        // 2.4ms, so about 612ms total
+        OdometrySensor.calibrateImu();
+
+        // Reset the tracking algorithm - this resets the position to the origin,
+        // but can also be used to recover from some rare tracking errors
+        OdometrySensor.resetTracking();
+
+        // After resetting the tracking, the OTOS will report that the robot is at
+        // the origin. If your robot does not start at the origin, or you have
+        // another source of location information (eg. vision odometry), you can set
+        // the OTOS location to match and it will continue to track from there.
+        SparkFunOTOS.Pose2D currentPosition = new SparkFunOTOS.Pose2D(0, 0, 0);
+        OdometrySensor.setPosition(currentPosition);
+
+        // Get the hardware and firmware version
+        SparkFunOTOS.Version hwVersion = new SparkFunOTOS.Version();
+        SparkFunOTOS.Version fwVersion = new SparkFunOTOS.Version();
+        OdometrySensor.getVersionInfo(hwVersion, fwVersion);
+
+        telemetry.addLine("OTOS configured! Press start to get position data!");
+        telemetry.addLine();
+        telemetry.addLine(String.format("OTOS Hardware Version: v%d.%d", hwVersion.major, hwVersion.minor));
+        telemetry.addLine(String.format("OTOS Firmware Version: v%d.%d", fwVersion.major, fwVersion.minor));
+        telemetry.update();
+    }
+    public void ZeroOtosSensor(){
+        OdometrySensor.resetTracking();
+    }
+
+    public void holonomic(){
+        double magnitude = Math.hypot(left_sticky_x(), left_sticky_y());
+        double offset = Math.toRadians(-90);
+        double angle = Math.atan2(left_sticky_y(), left_sticky_x()) + offset;
+        double rotateVelocity = right_sticky_x();
+
+        double Vlf = (magnitude * Math.cos(angle + (Math.PI/4))+rotateVelocity);
+        double Vlb = (magnitude * Math.sin(angle + (Math.PI/4))+rotateVelocity);
+        double Vrf = (magnitude * Math.sin(angle + (Math.PI/4))-rotateVelocity);
+        double Vrb = (magnitude * Math.cos(angle + (Math.PI/4))-rotateVelocity);
+
+        leftFront.setPower(Vlf);
+        leftBack.setPower(Vlb);
+        rightFront.setPower(Vrf);
+        rightBack.setPower(Vrb);
+
+        telemetry.addData("lf", Vlf);
+        telemetry.addData("lb", Vlb);
+        telemetry.addData("rf", Vrf);
+        telemetry.addData("rb", Vrb);
+    }
+
+    public void toggleSnail(){
+        if (Snail()){
+            RunSnail();
+        }
+    }
+
+    public void RunSnail(){
+        int morePower = 0;
+        double snailPos = Math.toDegrees(snailServo.getPosition());
+
+        if(snailPos == 0){
+            morePower = 90;
+            telemetry.addData("Snail","down");
+        }else{
+            morePower = 0;
+            telemetry.addData("Snail","up");
+        }
+        snailServo.setPosition(Math.toRadians(morePower));
     }
 }
 

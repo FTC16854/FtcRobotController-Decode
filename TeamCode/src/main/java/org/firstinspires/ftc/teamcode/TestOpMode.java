@@ -126,7 +126,7 @@ public class TestOpMode extends Example_ParentOpMode {
             telemetry();
             autoRead();
             controlOfShotgunShotSpeed();
-
+            toggleSnail();
 
             checkEmergencyStop(); // Stops motors and Terminates if buttons are pressed
             //without additional code in the while(opModeIsActive) loop.
