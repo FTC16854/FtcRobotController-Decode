@@ -1,38 +1,9 @@
 Control Hub
-Motor Ports                    Configuration Names          Color
-    0   RF Motor                rf_drive                     Green
-    1   RB Motor                rb_drive
-    2   LF Motor                lf_drive
-    3   LB Motor                lb_drive
-
-Servo Ports
-    0   Trigger Servo           triggerServo                 Blue
-    1   Spindex Servo           spindexServo
-    2   InTake Servo            intakeServo                  Gold
-    3   Snail Servo             snail_servo                  Green
-    4
-    5
-
-Digital Channels
-    0   SpindexPositionSwitch   spindex position switch
-    1
-    2
-    3
-
-I2C Ports
-    Bus 0                       imu
-    Bus 1                       sensor_color
-    Bus 2                       shotgun_color
-    Bus 3
-
----------------------------------------------------------
----------------------------------------------------------
-Expansion Hub
-Motor Ports                    Configuration Names   color
-    0   Shooter                 shooter
-    1   Intake                  Intake                Yellow
-    2
-    3
+Motor Ports                    Configuration Names           Color
+    0   RF Motor                rf_drive                     Aqua
+    1   RB Motor                rb_drive                     Green
+    2   LF Motor                lf_drive                     Red
+    3   LB Motor                lb_drive                     Orange
 
 Servo Ports
     0
@@ -43,6 +14,37 @@ Servo Ports
     5
 
 I2C Ports
+    Bus 0                       sensor_otos
     Bus 1
     Bus 2
+    Bus 3
+
+---------------------------------------------------------
+---------------------------------------------------------
+Expansion Hub
+Motor Ports                    Configuration Names   color
+    0   Shooter                 shooter               Neon Yellow
+    1   Intake                  Intake                Yellow
+    2
+    3
+
+Servo Ports
+    0   Snail Servo            snail_servo            Green
+    1  Spindex Servo           spindexServo           Grey
+    2  InTake Servo            intakeServo            Gold
+    3
+    4
+    5  Trigger Servo           triggerServo            Blue
+
+Digital Channels
+    0   SpindexPositionSwitch   spindex position switch
+    1
+    2
+    3
+    4
+
+I2C Ports
+    Bus 0                       imu
+    Bus 1                       sensor_color
+    Bus 2                       shotgun_color
     Bus 3

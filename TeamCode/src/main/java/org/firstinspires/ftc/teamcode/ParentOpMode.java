@@ -70,12 +70,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 @TeleOp(name="Parent Opmode", group="Linear Opmode")
 @Disabled
-public class Example_ParentOpMode extends LinearOpMode {
+public class ParentOpMode extends LinearOpMode {
 
     // Declare OpMode members, hardware variables
     public ElapsedTime runtime = new ElapsedTime();
-    private NormalizedColorSensor bulletIntakeColorSensor;
-    private NormalizedColorSensor shotgunLoadingColorSensor;
+
     //Drivetrain motors
     private DcMotor rightFront = null;
     private DcMotor rightBack = null;
@@ -87,6 +86,10 @@ public class Example_ParentOpMode extends LinearOpMode {
 
     //intake motor
     private DcMotor rubberIntake = null;
+
+    // Color Sensors
+    private NormalizedColorSensor bulletIntakeColorSensor;
+    private NormalizedColorSensor shotgunLoadingColorSensor;
 
     //spindexer hardware
     private CRServo TheKeeperOfTheBalls = null;
@@ -232,13 +235,14 @@ public class Example_ParentOpMode extends LinearOpMode {
     public boolean shotgunTriggerPB() {return gamepad1.right_trigger > 0.5;}
     public boolean rubberIntakePB() {return gamepad2.left_bumper;}
     public boolean rubberOuttakePB() {return gamepad2.right_bumper;}
-    public boolean FieldCentricReset() {return gamepad1.back;}
+    public boolean FieldCentricReset() {return gamepad1.back || gamepad2.back;}
     public boolean emergencyButtons() {
         // check for combination of buttons to be pressed before returning true
         return (gamepad1.b && gamepad1.y) || (gamepad2.b && gamepad2.y);
     }
     public boolean Snail(){return gamepad2.a;}
-
+    public boolean IncrementorPlusButton(){return gamepad1.dpad_up;}
+    public boolean IncrementorMinusButton(){return gamepad1.dpad_down;}
 
     /****************************/
     // Emergency Stop Functions
@@ -725,17 +729,58 @@ public class Example_ParentOpMode extends LinearOpMode {
     }
 
     public void RunSnail(){
-        int morePower = 0;
-        double snailPos = Math.toDegrees(snailServo.getPosition());
+        double morePower = 0;
+        double snailPos = snailServo.getPosition();
 
         if(snailPos == 0){
-            morePower = 90;
+            morePower = 0.25;
             telemetry.addData("Snail","down");
         }else{
             morePower = 0;
             telemetry.addData("Snail","up");
         }
-        snailServo.setPosition(Math.toRadians(morePower));
+        snailServo.setPosition(morePower);
+    }
+
+    public void MoveServo(boolean down){
+        double movement = shotgunTriggerServo.getPosition();
+        if (down){
+            movement = movement - 0.05;
+        }else{
+            movement = movement + 0.05;
+        }
+        if(movement>1){
+            movement = 1;
+        } else if (movement<0) {
+          movement = 0;
+        }
+
+        telemetry.addData("Servo 5 Position: ", movement);
+        shotgunTriggerServo.setPosition(movement);
+    }
+
+    public void RunTesting(){
+        if (IncrementorPlusButton()) {
+            MoveServo(false);
+        } else if (IncrementorMinusButton()) {
+            MoveServo(true);
+        }
+    }
+
+    public void prerecordColors(){
+        setServoPosition0(servoPosition0);
+        while (!SpindexInPosition()){
+        }
+        autoRead();
+        setServoPosition0(servoPosition1);
+        while (!SpindexInPosition()){
+        }
+        autoRead();
+        setServoPosition0(servoPosition2);
+        while (!SpindexInPosition()){
+        }
+        autoRead();
+        setServoPosition0(servoPosition0);
     }
 }
 
@@ -745,17 +790,17 @@ TODO:   not listed in any particular order of importance...
     .......................................................................................
     Shooter - Trigger Servo functions (auto and manual) - should only need 2 positions
     Shooter - velocity control (needs DcMotorEx...)
-    Intake - intake motor
-    Intake/Spindexer - record ball color in color array X
+    Intake - intake motor-
+    Intake/Spindexer - record ball color in color array X-
     Intake/Spindexer - rotate after ball detected
-    Intake/Spindexer - Run intake while cycling spindexer to keep ball in?
+    Intake/Spindexer - Run intake while cycling spindexer to keep ball in?-
     Intake/Spindexer - Reverse intake to eject extra ball
     Spindexer initialization (auto) - Cycle through positions, record ball colors
     Spindexer - Button to select/cycle to color
     Shooter/Spindexer - change color to "empty" or similar after successful launch
     Color Sensor - add sensors for pickup and launch locations.
         - Launch position used for detection only (distance), no color
-        - Integrate Color sensor code into ParentOpMode
+        - Integrate Color sensor code into ParentOpMode-
     .......................................................................................
     .......................................................................................
 */
