@@ -159,9 +159,9 @@ public class ParentOpMode extends LinearOpMode {
         shotgunMotor.setDirection(DcMotor.Direction.FORWARD);
         rubberIntake.setDirection(DcMotorSimple.Direction.FORWARD);
 
-        spindexServo.setDirection(Servo.Direction.FORWARD);
-        shotgunTriggerServo.setDirection(Servo.Direction.FORWARD);
-        snailServo.setDirection(Servo.Direction.FORWARD);
+        spindexServo.setDirection(Servo.Direction.REVERSE);
+        shotgunTriggerServo.setDirection(Servo.Direction.REVERSE);
+        snailServo.setDirection(Servo.Direction.REVERSE);
         //Set brake or coast modes.
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE); //BRAKE or FLOAT (Coast)
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -742,12 +742,16 @@ public class ParentOpMode extends LinearOpMode {
         snailServo.setPosition(morePower);
     }
 
+    public double getSpindexPosition(){
+        return spindexServo.getPosition();
+    }
+
     public void MoveServo(boolean down){
-        double movement = shotgunTriggerServo.getPosition();
+        double movement = spindexServo.getPosition();
         if (down){
-            movement = movement - 0.05;
+            movement = movement - 0.0001;
         }else{
-            movement = movement + 0.05;
+            movement = movement + 0.0001;
         }
         if(movement>1){
             movement = 1;
@@ -756,7 +760,7 @@ public class ParentOpMode extends LinearOpMode {
         }
 
         telemetry.addData("Servo 5 Position: ", movement);
-        shotgunTriggerServo.setPosition(movement);
+        spindexServo.setPosition(movement);
     }
 
     public void RunTesting(){

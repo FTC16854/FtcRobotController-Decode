@@ -125,6 +125,8 @@ public class TestOpMode extends ParentOpMode {
             checkEmergencyStop(); // Stops motors and Terminates if buttons are pressed
             //without additional code in the while(opModeIsActive) loop.
 
+            telemetry.addData("spindexinposition", SpindexInPosition());
+            telemetry.addData("Servo 5 Position: ", getSpindexPosition());
             telemetry.update();
         }
     }
