@@ -54,7 +54,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 @TeleOp(name="Servo Test Opmode", group="Linear Opmode")
 //@Disabled
-public class TestOpMode extends ParentOpMode {
+public class ServoTestOpMode extends ParentOpMode {
 
 
 
@@ -126,7 +126,8 @@ public class TestOpMode extends ParentOpMode {
             //without additional code in the while(opModeIsActive) loop.
 
             telemetry.addData("spindexinposition", SpindexInPosition());
-            telemetry.addData("Servo 5 Position: ", getSpindexPosition());
+//            telemetry.addData("Servo 5 Position: ", getSpindexPosition());
+            showTelemetry();
             telemetry.update();
         }
     }

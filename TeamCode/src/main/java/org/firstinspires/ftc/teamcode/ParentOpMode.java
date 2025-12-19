@@ -106,19 +106,33 @@ public class ParentOpMode extends LinearOpMode {
     //Other Global Variables
     SparkFunOTOS.Pose2D pos;
     //put global variables here...
-    double servoPosition0 = 0;      // The first position that the spindexer servo can turn to
-    double servoPosition1 = 0.33;   // The second position that the spindexer servo can turn to
-    double servoPosition2 = 0.67;   // The third position that the spindexer servo can turn to
+    double servoPosition0 = 0.0139;      // The first position that the spindexer servo can turn to
+    double servoPosition1 = 0.0889;   // The second position that the spindexer servo can turn to
+    double servoPosition2 = 0.1567;   // The third position that the spindexer servo can turn to
 
     String[] colorArray = new String[3];    // The colors of the different balls in the spindexer
     double[] PosArray = {servoPosition0, servoPosition1, servoPosition2};   // The different positions that the spindexer servo can turn to
+
+    double[] hackyPosArray =
+            {
+            0.0128,
+            0.0889,
+            0.1567,
+            0.2344,
+            0.3111
+            };
+    int hackyPosIndex = 0;
+
+    double SpindexPosition = 0.0139;        // This is for the our hacky manual controls
+    double SpindexIncrement = 0.07;         //TODO: FIX THIS!!!!!
+
     int spindexerArrayIndex = 0;            // For the color array, the index of the ball in the intake position
     int ShootgunIndex = 2;                  // For the color array, the index of the ball in the shooter position
     String tempBulletColor;
     boolean tempBulletolorIsSaved = false;
 
     double triggerDown = 0;
-    double triggerUp = 0.2;
+    double triggerUp = 0.255;
 
 
     final float colorSensorGain = (float) 17.5;
@@ -153,11 +167,11 @@ public class ParentOpMode extends LinearOpMode {
 
         //Set Motor  and servo Directions
         rightFront.setDirection(DcMotor.Direction.REVERSE);
-        rightBack.setDirection(DcMotor.Direction.REVERSE);
+        rightBack.setDirection(DcMotor.Direction.FORWARD);
         leftFront.setDirection(DcMotor.Direction.FORWARD);
-        leftBack.setDirection(DcMotor.Direction.FORWARD);
-        shotgunMotor.setDirection(DcMotor.Direction.FORWARD);
-        rubberIntake.setDirection(DcMotorSimple.Direction.FORWARD);
+        leftBack.setDirection(DcMotor.Direction.REVERSE);
+        shotgunMotor.setDirection(DcMotor.Direction.REVERSE);
+        rubberIntake.setDirection(DcMotorSimple.Direction.REVERSE);
 
         spindexServo.setDirection(Servo.Direction.REVERSE);
         shotgunTriggerServo.setDirection(Servo.Direction.REVERSE);
@@ -311,7 +325,7 @@ public class ParentOpMode extends LinearOpMode {
     }
 
     public void controlOfShotgunShotSpeed(){
-        double shped = 0.5;
+        double shped = 1;
 
         if (ShotgunHasBall()){
             if (tempBulletColor == "None"){
@@ -354,23 +368,27 @@ public class ParentOpMode extends LinearOpMode {
             runRubberMotor(shpeed);
         } else if (rubberOuttakePB()) {
             runRubberMotor(-shpeed);
+        }else {
+            runRubberMotor(0);
+
         }
         // test if spindexer is not in posittion. it moves it
         /* else if (!SpindexInPosition()){
             runRubberMotor(shpeed/5);
         } */
-        else {
-            runRubberMotor(0);
-        }
+
     }
 
     public void runRubberMotor(double shpeed){
         if (shpeed < 0) {
             rubberIntake.setPower(shpeed);
-            runBallKeeper(true);
-        } else if (SpindexInPosition()) {
+            runBallKeeper(true, false);
+        } else if (SpindexInPosition() && shpeed > 0) {
             rubberIntake.setPower(shpeed);
-            runBallKeeper(false);
+            runBallKeeper(false, false);
+        }else {
+            rubberIntake.setPower(0);
+            runBallKeeper(false,true);
         }
     }
 
@@ -391,13 +409,13 @@ public class ParentOpMode extends LinearOpMode {
         spindexServo.setPosition(ServoPos);
     }
 
-    public void runBallKeeper(boolean backwards) {
-        if (!backwards){
-            TheKeeperOfTheBalls.setPower(1);
-        }else if(backwards){
-            TheKeeperOfTheBalls.setPower(-1);
-        }else{
+    public void runBallKeeper(boolean backwards,boolean stop) {
+        if (stop){
             TheKeeperOfTheBalls.setPower(0);
+        }else if (!backwards){
+            TheKeeperOfTheBalls.setPower(1);
+        }else{
+            TheKeeperOfTheBalls.setPower(-1);
         }
     }
 
@@ -413,10 +431,46 @@ public class ParentOpMode extends LinearOpMode {
         //TODO: This function
     }
 
+    public void MoveSpindexServoV2(){
+        if (!IsBall() && SpindexInPosition()){
+            if (spindex_left_was_Released()){
+                SpindexPosition = SpindexPosition - SpindexIncrement;
+            }
+        }
+        if (spindex_right_was_released()) {
+            SpindexPosition = SpindexPosition + SpindexIncrement;
+        }
+        if(SpindexPosition < 0){
+            SpindexPosition = 0.0128;
+        }
+        if (SpindexPosition > 1){
+            SpindexPosition = SpindexPosition - SpindexIncrement;
+        }
+        spindexServo.setPosition(SpindexPosition);
+    }
 
+    public void MoveSpindexServoV3(){
+        if (!IsBall() && SpindexInPosition()){
+            if (spindex_left_was_Released()){
+                hackyPosIndex -= 1;
+            }
+        }
+        if (spindex_right_was_released()) {
+            hackyPosIndex += 1;
+        }
+
+        if(hackyPosIndex < 0){
+            hackyPosIndex = 0;
+        }
+        if (hackyPosIndex > 4){
+            hackyPosIndex -= 1;
+        }
+        double spindexPos = hackyPosArray[hackyPosIndex];
+        spindexServo.setPosition(spindexPos);
+    }
 
     //can be made to function like minecraft hotbar, does not yet.
-    public void  MovespindexServo(){
+    public void  MoveSpindexServo(){
         double currentPosition = spindexServo.getPosition();
 
         boolean moveLeft = false;
@@ -458,7 +512,7 @@ public class ParentOpMode extends LinearOpMode {
         else{
             ShootgunIndex = spindexerArrayIndex -1;
         }
-        setSpindexerServo();
+        //setSpindexerServo();
     }
 
     public boolean ColorGreen() {
@@ -492,7 +546,7 @@ public class ParentOpMode extends LinearOpMode {
     }
 
     public boolean IsBall() {
-        double DistanceSensing = 5;
+        double DistanceSensing = 6.5;
         if
         (((DistanceSensor) bulletIntakeColorSensor).getDistance(DistanceUnit.CM) < DistanceSensing) {
             return true;
@@ -551,10 +605,13 @@ public class ParentOpMode extends LinearOpMode {
 //        telemetry.addData("Alpha", "%.3f", colors.alpha);
     }
 
-    public void telemetry(){
+    public void showTelemetry(){
         telemetry.addData("Spindex in position", SpindexInPosition());
+        telemetry.addData("Spindex INDEX!", hackyPosIndex);
 
-        telemetry.addData("spindex servo position", spindexServo.getPosition());
+
+
+        telemetry.addData("spindex servo position", getSpindexPosition());
 //        telemetry.addData("L pressed",gamepad1.leftBumperWasPressed());
 //        telemetry.addData("R pressed",gamepad1.rightBumperWasPressed());
         telemetry.addData("L released",gamepad1.leftBumperWasReleased());
@@ -566,6 +623,8 @@ public class ParentOpMode extends LinearOpMode {
         telemetry.addData("spindex array index", spindexerArrayIndex);
         telemetry.addData("Shotgun Index",ShootgunIndex);
         telemetry.addData("color in Shotgun ",getbulletcolor());
+
+
 
         colorTelemetry();
         ColorIs();
@@ -733,7 +792,7 @@ public class ParentOpMode extends LinearOpMode {
         double snailPos = snailServo.getPosition();
 
         if(snailPos == 0){
-            morePower = 0.25;
+            morePower = 0.355;
             telemetry.addData("Snail","down");
         }else{
             morePower = 0;
@@ -749,9 +808,9 @@ public class ParentOpMode extends LinearOpMode {
     public void MoveServo(boolean down){
         double movement = spindexServo.getPosition();
         if (down){
-            movement = movement - 0.0001;
+            movement = movement - 0.0005;
         }else{
-            movement = movement + 0.0001;
+            movement = movement + 0.0005;
         }
         if(movement>1){
             movement = 1;
@@ -789,7 +848,11 @@ public class ParentOpMode extends LinearOpMode {
 }
 
 /*
-TODO:   not listed in any particular order of importance...
+TODO:   not listed in any particular order of importance..................................
+    ......................................................................................
+    ......................................................................................
+    Set snail position
+    Add spindex positions to hacky array
     .......................................................................................
     .......................................................................................
     Shooter - Trigger Servo functions (auto and manual) - should only need 2 positions
