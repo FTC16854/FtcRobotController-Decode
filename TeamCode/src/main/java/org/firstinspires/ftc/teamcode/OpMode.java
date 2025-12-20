@@ -122,19 +122,24 @@ public class OpMode extends ParentOpMode {
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
+
+//            setSpindexerServo();
+
             inputRubberMotor();
             MoveSpindexServoV3();
-            //setSpindexerServo();
-            displayTelemetry();
-            autoRead();
             controlOfShotgun();
             toggleSnail();
             holonomicFieldCentric();
+
 //            holonomic();
 //            tankdrive(left_sticky_y(),right_sticky_y());
+
+            autoRead();
+
             checkEmergencyStop(); // Stops motors and Terminates if buttons are pressed
             //without additional code in the while(opModeIsActive) loop.
 
+            displayTelemetry();
             telemetry.update();
         }
     }

@@ -116,7 +116,7 @@ public class ParentOpMode extends LinearOpMode {
 
     double[] hackyPosArray =
             {
-            0.0128,
+            0.0130,
             0.0870,
             0.1578,
             0.2328,
@@ -343,16 +343,20 @@ public class ParentOpMode extends LinearOpMode {
         double NoTolerance = 100;
         double currentVelocity = shotgunMotor.getVelocity();
 
-        if (ShotgunHasBall()){
-            if (tempBulletColor == "None"){
-                tempBulletColor = colorArray[ShootgunIndex];
-            }else {
-                colorArray[ShootgunIndex] = tempBulletColor;
-            }
-        }
+//        if (ShotgunHasBall()){
+//            if (tempBulletColor == "None"){
+//                tempBulletColor = colorArray[ShootgunIndex];
+//            }else {
+//                colorArray[ShootgunIndex] = tempBulletColor;
+//            }
+//        }
 
         if (shotgunSpinyPB()){
-            shotgunSpiny(shped);
+//            shotgunSpiny(shped);
+            shotgunMotor.setVelocity(shped);
+//            telemetry.addData("AAAAHHHHHHHHH","");
+//            telemetry.update();
+
         } else {
             shotgunSpiny(0);
         }
@@ -364,9 +368,6 @@ public class ParentOpMode extends LinearOpMode {
             gunTriggerSafety(triggerDown);
 
         }
-
-
-
 
     }
 
@@ -585,10 +586,8 @@ public class ParentOpMode extends LinearOpMode {
         double DistanceSensing = 5;
         if
         (((DistanceSensor) shotgunLoadingColorSensor).getDistance(DistanceUnit.CM) < DistanceSensing) {
-            telemetry.addData("ShotgunHasBall", "yes");
             return true;
         } else {
-            telemetry.addData("ShotgunHasBall", "no");
             return false;
         }
     }
@@ -634,6 +633,9 @@ public class ParentOpMode extends LinearOpMode {
     public void displayTelemetry(){
         telemetry.addData("Spindex in position", SpindexInPosition());
         telemetry.addData("Spindex INDEX!", hackyPosIndex);
+        telemetry.addData("Flywheel Button:", shotgunSpinyPB());
+
+
         ColorIs();
 
         telemetry.addData("spindex servo position", getSpindexPosition());
@@ -643,7 +645,7 @@ public class ParentOpMode extends LinearOpMode {
 //        telemetry.addData("R released",gamepad1.rightBumperWasReleased());
 
         telemetry.addData("shotgun velocity",shotgunMotor.getVelocity());
-
+//        telemetry.addData("shotgun has ball: ", ShotgunHasBall());
 //        for (int i = 0; i<3; i++){
 //            telemetry.addData("color in index " + i, colorArray[i]);
 //        }
