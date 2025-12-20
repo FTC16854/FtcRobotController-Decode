@@ -134,7 +134,7 @@ public class ParentOpMode extends LinearOpMode {
     int hackyPosIndex = 0;
 
     double SpindexPosition = 0.0139;        // This is for the our hacky manual controls
-    double SpindexIncrement = 0.07;         //TODO: FIX THIS!!!!!
+    double SpindexIncrement = 0.07;         //
 
     int spindexerArrayIndex = 0;            // For the color array, the index of the ball in the intake position
     int ShootgunIndex = 2;                  // For the color array, the index of the ball in the shooter position
@@ -317,8 +317,9 @@ public class ParentOpMode extends LinearOpMode {
         if (SpindexInPosition()) {
             if (position == triggerUp){
                 telemetry.addData("shooting","yes");
-            }else{
-                telemetry.addData("shooting", "no");
+            }
+            else{
+                telemetry.addData("shooting","no");
             }
 
             moveTriggerServo(position);
@@ -337,7 +338,7 @@ public class ParentOpMode extends LinearOpMode {
         }
     }
 
-    public void controlOfShotgunShotSpeed(){
+    public void controlOfShotgun(){
         double shped = 1630;
         double NoTolerance = 100;
         double currentVelocity = shotgunMotor.getVelocity();
@@ -482,9 +483,10 @@ public class ParentOpMode extends LinearOpMode {
                 hackyPosIndex -= 1;
             }
 
-            if (spindexerResetPB()){
+            if (spindexerResetPB() && rubberOuttakePB()){
                 hackyPosIndex = 0;
                 //todo: run outtake
+
 
             }
 
@@ -629,31 +631,28 @@ public class ParentOpMode extends LinearOpMode {
 //        telemetry.addData("Alpha", "%.3f", colors.alpha);
     }
 
-    public void showTelemetry(){
+    public void displayTelemetry(){
         telemetry.addData("Spindex in position", SpindexInPosition());
         telemetry.addData("Spindex INDEX!", hackyPosIndex);
-
-
+        ColorIs();
 
         telemetry.addData("spindex servo position", getSpindexPosition());
-//        telemetry.addData("L pressed",gamepad1.leftBumperWasPressed());
-//        telemetry.addData("R pressed",gamepad1.rightBumperWasPressed());
-        telemetry.addData("L released",gamepad1.leftBumperWasReleased());
-        telemetry.addData("R released",gamepad1.rightBumperWasReleased());
+////        telemetry.addData("L pressed",gamepad1.leftBumperWasPressed());
+////        telemetry.addData("R pressed",gamepad1.rightBumperWasPressed());
+//        telemetry.addData("L released",gamepad1.leftBumperWasReleased());
+//        telemetry.addData("R released",gamepad1.rightBumperWasReleased());
 
         telemetry.addData("shotgun velocity",shotgunMotor.getVelocity());
 
-        for (int i = 0; i<3; i++){
-            telemetry.addData("color in index " + i, colorArray[i]);
-        }
-        telemetry.addData("spindex array index", spindexerArrayIndex);
-        telemetry.addData("Shotgun Index",ShootgunIndex);
-        telemetry.addData("color in Shotgun ",getbulletcolor());
-
-
+//        for (int i = 0; i<3; i++){
+//            telemetry.addData("color in index " + i, colorArray[i]);
+//        }
+//        telemetry.addData("spindex array index", spindexerArrayIndex);
+//        telemetry.addData("Shotgun Index",ShootgunIndex);
+//        telemetry.addData("color in Shotgun ",getbulletcolor());
 
         colorTelemetry();
-        ColorIs();
+
     }
 
     public double getAngler() {

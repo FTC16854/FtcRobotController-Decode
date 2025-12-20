@@ -127,7 +127,7 @@ public class ServoTestOpMode extends ParentOpMode {
 
             telemetry.addData("spindexinposition", SpindexInPosition());
 //            telemetry.addData("Servo 5 Position: ", getSpindexPosition());
-            showTelemetry();
+            displayTelemetry();
             telemetry.update();
         }
     }
