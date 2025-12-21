@@ -30,7 +30,6 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 /**
  * Original FTC opmode header block
@@ -53,9 +52,9 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
  * override the ParentOpMode runOpMode() method.
  **/
 
-@Autonomous(name="MoveOffLine", group="Linear Opmode")
+@Autonomous(name="MoveOffLineLeft", group="Linear Opmode")
 //@Disabled
-public class AutoMoveOffLine extends ParentOpMode {
+public class AutoMoveOffLineLeft extends ParentOpMode {
 
     /**
      * runOpMode() will be overridden in child OpMode.
@@ -81,13 +80,14 @@ public class AutoMoveOffLine extends ParentOpMode {
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
-           autoHolonomicFieldCentric(0.5, 0, 0);
+           autoHolonomicFieldCentric(0.5, 180, 0);
            sleep(1500);
            stopDrive();
             checkEmergencyStop(); // Stops motors and Terminates if buttons are pressed
             //without additional code in the while(opModeIsActive) loop.
 
             telemetry.update();
+            break;
         }
     }
 
