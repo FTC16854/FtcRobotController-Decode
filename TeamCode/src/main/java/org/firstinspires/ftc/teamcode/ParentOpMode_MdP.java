@@ -1024,8 +1024,28 @@ public class ParentOpMode_MdP extends LinearOpMode {
     }
 
     public boolean spindexMotorInPosition(){
-        //return true if motor in position +/- tolerance
+        //return true if motor in position (at target position) +/- tolerance
         return true;
+    }
+
+    public void homeSpindexer(){
+        double homingSpeed = 0.3;
+
+        spindexerMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        while(opModeInInit() && !SpindexInPosition()){  //run until limit switch triggered
+            spindexerMotor.setPower(homingSpeed);
+            telemetry.addData("Homing spindexer", "...spinning...");
+            telemetry.update();
+        }
+
+        //Stop motors. Reset encoders. Set motors to run without velocity control
+        spindexerMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        spindexerMotor.setPower(0);
+        spindexerMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        telemetry.addData("Spindexer homed", "Home");
+        telemetry.update();
     }
 
 }
