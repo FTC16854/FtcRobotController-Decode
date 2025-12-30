@@ -81,6 +81,7 @@ public class ParentOpMode extends LinearOpMode {
     private DcMotor rightBack = null;
     private DcMotor leftFront = null;
     private DcMotor leftBack = null;
+    private DcMotor spinMotor = null;
 
     //shotgun motor
     private DcMotorEx shotgunMotor = null;
@@ -135,6 +136,7 @@ public class ParentOpMode extends LinearOpMode {
 
     double SpindexPosition = 0.0139;        // This is for the our hacky manual controls
     double SpindexIncrement = 0.07;         //
+    int spinnyGoHere = 0; // target position of the spindexer
 
     int spindexerArrayIndex = 0;            // For the color array, the index of the ball in the intake position
     int ShootgunIndex = 2;                  // For the color array, the index of the ball in the shooter position
@@ -158,6 +160,7 @@ public class ParentOpMode extends LinearOpMode {
         leftBack = hardwareMap.get(DcMotor.class, "lb_drive");
         shotgunMotor = hardwareMap.get(DcMotorEx.class, "shooter");
         rubberIntake = hardwareMap.get(DcMotor.class, "intake");
+        spinMotor = hardwareMap.get(DcMotor.class, "spindexerMotor");
 
         TheKeeperOfTheBalls = hardwareMap.get(CRServo.class,"intakeServo");
         shotgunTriggerServo = hardwareMap.get(Servo.class, "triggerServo");
@@ -182,17 +185,20 @@ public class ParentOpMode extends LinearOpMode {
         leftBack.setDirection(DcMotor.Direction.REVERSE);
         shotgunMotor.setDirection(DcMotor.Direction.REVERSE);
         rubberIntake.setDirection(DcMotorSimple.Direction.REVERSE);
+        spinMotor.setDirection(DcMotor.Direction.FORWARD);
 
         spindexServo.setDirection(Servo.Direction.REVERSE);
         shotgunTriggerServo.setDirection(Servo.Direction.REVERSE);
         snailServo.setDirection(Servo.Direction.REVERSE);
+
         //Set brake or coast modes.
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE); //BRAKE or FLOAT (Coast)
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        shotgunMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        shotgunMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         rubberIntake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        spinMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         //Update Driver Station Status Message after init
         telemetry.addData("Status:", "Initialized");
@@ -539,6 +545,51 @@ public class ParentOpMode extends LinearOpMode {
             ShootgunIndex = spindexerArrayIndex -1;
         }
         //setSpindexerServo();
+    }
+
+    //new spindexer stuff
+    public void spinnyHome(){
+        spinMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        if (SpindexInPosition()){
+            spinMotor.setPower(0);
+            spinMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            spinMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        } else {
+            spinMotor.setPower(0.1);
+        }
+    }
+
+    public void MoveSpindexMotorV1(){
+
+        //TODO:
+        // increment counters and everything ese in this function
+        if (shotgunTriggerServo.getPosition() == triggerDown){
+            if (!IsBall() && SpindexInPosition()){
+                if (spindex_left_was_Released()){
+                    hackyPosIndex -= 1;
+                }
+            }
+            if (spindex_right_was_released()) {
+                hackyPosIndex += 1;
+            }
+
+            if(hackyPosIndex < 0){
+                hackyPosIndex = 0;
+            }
+            if (hackyPosIndex > 13){
+                hackyPosIndex -= 1;
+            }
+
+            if (spindexerResetPB() && rubberOuttakePB()){
+                hackyPosIndex = 0;
+                //todo: run outtake
+
+
+            }
+
+        }
+        double spindexPos = hackyPosArray[hackyPosIndex];
+        spindexServo.setPosition(spindexPos);
     }
 
     public boolean ColorGreen() {
