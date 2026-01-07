@@ -110,6 +110,7 @@ public class OpModePreload extends ParentOpMode {
 
         // Init loop - optional
         while(opModeInInit()){
+            spinnyHome();
             //prerecordColors();
             telemetry.addData("Cheese and Pickles ","Sandwich!");
             telemetry.update();
@@ -122,6 +123,7 @@ public class OpModePreload extends ParentOpMode {
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
+            spinnyHome();
             setSpindexToZero();
             inputRubberMotorExtreme();
             MoveSpindexServoV3();

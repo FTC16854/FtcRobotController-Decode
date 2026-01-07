@@ -137,7 +137,8 @@ public class ParentOpMode extends LinearOpMode {
     int hackyPosIndex = 2;
 
     double SpindexPosition = 0.0139;        // This is for the our hacky manual controls
-    double SpindexIncrement = 0.07;         //
+    double SpindexIncrement = 0.07;//
+    int SpindexMotorIncrement = (int)1425.1/3;//==475 currently
     int spinnyGoHere = 0; // target position of the spindexer
 
     int spindexerArrayIndex = 0;            // For the color array, the index of the ball in the intake position
@@ -234,6 +235,8 @@ public class ParentOpMode extends LinearOpMode {
             // code here should never actually execute in parent opmode.
             // This function will be be overridden by child opmode classes
 
+    int spinmotortarget = 0;
+    int spinmotorincrement = (int)1425.1/3; //== 475 currently
 
             //include emergency stop check in all runOpMode() functions/methods
             //implementation depends on which E-stop function will be used (boolean/void)
@@ -614,31 +617,26 @@ public class ParentOpMode extends LinearOpMode {
     }
 
     public void MoveSpindexMotorV1(){
+        if (colorPosIndex > 2){
+            colorPosIndex = colorPosIndex - 3;
+        }
 
-        //TODO:
-        // increment counters and everything ese in this function
         if (shotgunTriggerServo.getPosition() == triggerDown){
             if (!IsBall() && SpindexInPosition()){
                 if (spindex_left_was_Released()){
-                    hackyPosIndex -= 1;
+                    spinnyGoHere  -= SpindexMotorIncrement;
+                    colorPosIndex -= 1;
                 }
             }
             if (spindex_right_was_released()) {
-                hackyPosIndex += 1;
-            }
-
-            if(hackyPosIndex < 0){
-                hackyPosIndex = 0;
-            }
-            if (hackyPosIndex > 13){
-                hackyPosIndex -= 1;
+                spinnyGoHere  += SpindexMotorIncrement;
+                colorPosIndex += 1;
             }
 
             if (spindexerResetPB() && rubberOuttakePB()){
-                hackyPosIndex = 0;
+                spinnyGoHere = 0;
+                colorPosIndex = 0;
                 //todo: run outtake
-
-
             }
 
         }
@@ -684,6 +682,13 @@ public class ParentOpMode extends LinearOpMode {
         } else {
             return false;
         }
+    }
+
+    public void setSpindexToZero(){
+        hackyPosIndex = 0;
+
+        double spindexPos = hackyPosArray[hackyPosIndex];
+        spindexServo.setPosition(spindexPos);
     }
 
     public boolean ShotgunHasBall() {

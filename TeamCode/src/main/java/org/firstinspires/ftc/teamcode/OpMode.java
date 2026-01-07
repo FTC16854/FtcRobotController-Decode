@@ -110,6 +110,7 @@ public class OpMode extends ParentOpMode {
 
         // Init loop - optional
         while(opModeInInit()){
+            spinnyHome();
             //prerecordColors();
             telemetry.addData("Cheese and Pickles ","Sandwich!");
             telemetry.update();
