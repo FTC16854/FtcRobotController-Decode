@@ -52,9 +52,9 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
  * override the ParentOpMode runOpMode() method.
  **/
 
-@TeleOp(name="Opmode", group="Linear Opmode")
+@TeleOp(name="Preload Function", group="Linear Opmode")
 //@Disabled
-public class OpMode extends ParentOpMode {
+public class OpModePreload extends ParentOpMode {
 
 
 
@@ -122,23 +122,9 @@ public class OpMode extends ParentOpMode {
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
-
-//            setSpindexerServo();
-
-            inputRubberMotor();
+            setSpindexToZero();
+            inputRubberMotorExtreme();
             MoveSpindexServoV3();
-            controlOfShotgun();
-            toggleSnail();
-            holonomicFieldCentric();
-
-//            holonomic();
-//            tankdrive(left_sticky_y(),right_sticky_y());
-
-            autoRead();
-
-            checkEmergencyStop(); // Stops motors and Terminates if buttons are pressed
-            //without additional code in the while(opModeIsActive) loop.
-
             displayTelemetry();
             telemetry.update();
         }

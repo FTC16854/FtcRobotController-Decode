@@ -29,6 +29,8 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import android.graphics.Color;
+
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -38,12 +40,11 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
-import android.graphics.Color;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -69,9 +70,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
  * override the ParentOpMode runOpMode() method.
  **/
 
-@TeleOp(name="Parent Opmode", group="Linear Opmode")
+@TeleOp(name="Parent Opmode_MdP", group="Linear Opmode")
 @Disabled
-public class ParentOpMode extends LinearOpMode {
+public class ParentOpMode_MdP extends LinearOpMode {
 
     // Declare OpMode members, hardware variables
     public ElapsedTime runtime = new ElapsedTime();
@@ -81,10 +82,12 @@ public class ParentOpMode extends LinearOpMode {
     private DcMotor rightBack = null;
     private DcMotor leftFront = null;
     private DcMotor leftBack = null;
-    private DcMotor spinMotor = null;
 
     //shotgun motor
     private DcMotorEx shotgunMotor = null;
+
+    //spindexer motor
+    private DcMotorEx spindexerMotor = null;
 
     //intake motor
     private DcMotor rubberIntake = null;
@@ -112,9 +115,17 @@ public class ParentOpMode extends LinearOpMode {
     double servoPosition1 = 0.0870;   // The second position that the spindexer servo can turn to
     double servoPosition2 = 0.1578;   // The third position that the spindexer servo can turn to
 
-    String[] colorArray = new String[3];    // The colors of the different balls in the spindexer
-    double[] PosArray = {servoPosition0, servoPosition1, servoPosition2};   // The different positions that the spindexer servo can turn to
+    // Position Indices for
+    int spindexPosition0 = 0;
+    int spindexPosition1 = 120;
+    int spindexPosition2 = 240;
+    boolean spindexerWasReset = false;
+    int spindexTargetPosition = 0;
 
+
+    String[] colorArray = new String[3];    // The colors of the different balls in the spindexer
+//    double[] PosArray = {servoPosition0, servoPosition1, servoPosition2};   // The different positions that the spindexer servo can turn to
+    double[] PosArray = {spindexPosition0, spindexPosition1, spindexPosition2};   // The different positions that the spindexer motor can turn to
     double[] hackyPosArray =
             {
             0.0130, //0
@@ -138,7 +149,6 @@ public class ParentOpMode extends LinearOpMode {
 
     double SpindexPosition = 0.0139;        // This is for the our hacky manual controls
     double SpindexIncrement = 0.07;         //
-    int spinnyGoHere = 0; // target position of the spindexer
 
     int spindexerArrayIndex = 0;            // For the color array, the index of the ball in the intake position
     int ShootgunIndex = 2;                  // For the color array, the index of the ball in the shooter position
@@ -163,7 +173,7 @@ public class ParentOpMode extends LinearOpMode {
         leftBack = hardwareMap.get(DcMotor.class, "lb_drive");
         shotgunMotor = hardwareMap.get(DcMotorEx.class, "shooter");
         rubberIntake = hardwareMap.get(DcMotor.class, "intake");
-        spinMotor = hardwareMap.get(DcMotor.class, "spindexerMotor");
+        spindexerMotor = hardwareMap.get(DcMotorEx.class,"spindex_motor");
 
         TheKeeperOfTheBalls = hardwareMap.get(CRServo.class,"intakeServo");
         shotgunTriggerServo = hardwareMap.get(Servo.class, "triggerServo");
@@ -188,20 +198,18 @@ public class ParentOpMode extends LinearOpMode {
         leftBack.setDirection(DcMotor.Direction.REVERSE);
         shotgunMotor.setDirection(DcMotor.Direction.REVERSE);
         rubberIntake.setDirection(DcMotorSimple.Direction.REVERSE);
-        spinMotor.setDirection(DcMotor.Direction.FORWARD);
+        spindexerMotor.setDirection(DcMotorEx.Direction.FORWARD);
 
         spindexServo.setDirection(Servo.Direction.REVERSE);
         shotgunTriggerServo.setDirection(Servo.Direction.REVERSE);
         snailServo.setDirection(Servo.Direction.REVERSE);
-
         //Set brake or coast modes.
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE); //BRAKE or FLOAT (Coast)
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        shotgunMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        shotgunMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rubberIntake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        spinMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         //Update Driver Station Status Message after init
         telemetry.addData("Status:", "Initialized");
@@ -601,47 +609,9 @@ public class ParentOpMode extends LinearOpMode {
         //setSpindexerServo();
     }
 
-    //new spindexer stuff
-    public void spinnyHome(){
-        spinMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        if (SpindexInPosition()){
-            spinMotor.setPower(0);
-            spinMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            spinMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        } else {
-            spinMotor.setPower(0.1);
-        }
-    }
+    void setSpindexToZero(){
+        hackyPosIndex = 0;
 
-    public void MoveSpindexMotorV1(){
-
-        //TODO:
-        // increment counters and everything ese in this function
-        if (shotgunTriggerServo.getPosition() == triggerDown){
-            if (!IsBall() && SpindexInPosition()){
-                if (spindex_left_was_Released()){
-                    hackyPosIndex -= 1;
-                }
-            }
-            if (spindex_right_was_released()) {
-                hackyPosIndex += 1;
-            }
-
-            if(hackyPosIndex < 0){
-                hackyPosIndex = 0;
-            }
-            if (hackyPosIndex > 13){
-                hackyPosIndex -= 1;
-            }
-
-            if (spindexerResetPB() && rubberOuttakePB()){
-                hackyPosIndex = 0;
-                //todo: run outtake
-
-
-            }
-
-        }
         double spindexPos = hackyPosArray[hackyPosIndex];
         spindexServo.setPosition(spindexPos);
     }
@@ -1026,7 +996,64 @@ public class ParentOpMode extends LinearOpMode {
             MoveServo(false);
         }
     }
+
+
+
+    public void zeroSpindexer(){
+        if(SpindexInPosition() && !spindexerWasReset){    //Reset encoder, then set motor back to normal mode
+            spindexerMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            spindexerMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            spindexerWasReset = true;
+        }
+    }
+
+    public void setSpindexerArrayIndex(int index){   //May or may not need to be a function
+        spindexerArrayIndex = index;
+    }
+
+    public void goToSpindexerPosition(int targetPos){
+        double spindexSpeed = 0.5;
+
+        if(spindexerMotor.getCurrentPosition() < spindexTargetPosition){
+            spindexerMotor.setPower(spindexSpeed);
+        } //Rotate only in positive direction until past targetPos
+        else{    // Then, actually set as target position and use built-in goToPosition function
+            spindexTargetPosition = targetPos;
+            spindexerMotor.setPower(spindexSpeed);
+        }
+    }
+
+    public boolean spindexMotorInPosition(){
+        //return true if motor in position (at target position) +/- tolerance
+        return true;
+    }
+
+    public void homeSpindexer(){
+        double homingSpeed = 0.3;
+
+        spindexerMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        while(opModeInInit() && !SpindexInPosition()){  //run until limit switch triggered
+            spindexerMotor.setPower(homingSpeed);
+            telemetry.addData("Homing spindexer", "...spinning...");
+            telemetry.update();
+        }
+
+        //Stop motors. Reset encoders. Set motors to run without velocity control
+        spindexerMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        spindexerMotor.setPower(0);
+        spindexerMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        telemetry.addData("Spindexer homed", "Home");
+        telemetry.update();
+    }
+
 }
+
+
+
+
+
 
 /*
 TODO:   not listed in any particular order of importance..................................

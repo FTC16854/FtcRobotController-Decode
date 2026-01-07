@@ -29,7 +29,7 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 /**
  * Original FTC opmode header block
@@ -52,51 +52,9 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
  * override the ParentOpMode runOpMode() method.
  **/
 
-@TeleOp(name="Opmode", group="Linear Opmode")
+@Autonomous(name="MoveOffLineForward", group="Linear Opmode")
 //@Disabled
-public class OpMode extends ParentOpMode {
-
-
-
-//    public void initialize(){
-//        // Initialize the hardware variables. Note that the strings used here as parameters
-//        // to 'get' must correspond to the names assigned during the robot configuration
-//        // step (using the FTC Driver Station app or Driver Hub).
-//
-//        rightFront = hardwareMap.get(DcMotor.class, "rf_drive");
-//        rightBack = hardwareMap.get(DcMotor.class, "rb_drive");
-//        leftFront = hardwareMap.get(DcMotor.class,"lf_drive");
-//        leftBack = hardwareMap.get(DcMotor.class, "lb_drive");
-//
-//        shotgunMotor = hardwareMap.get(DcMotor.class,"shooter");
-//        shotgunTriggerServo = hardwareMap.get(Servo.class, "triggerServo");
-//
-//        spindexServo = hardwareMap.get(Servo.class, "spindex Servo");
-//
-//        //Set motor run mode (if using SPARK Mini motor controllers)
-//
-//
-//        //Set Motor  and servo Directions
-//
-//        rightFront.setDirection(DcMotor.Direction.REVERSE);
-//        rightBack.setDirection(DcMotor.Direction.REVERSE);
-//        leftFront.setDirection(DcMotor.Direction.FORWARD);
-//        leftBack.setDirection(DcMotor.Direction.FORWARD);
-//
-//        spindexServo.setDirection(Servo.Direction.FORWARD);
-//
-//
-//        //Set brake or coast modes.
-//        rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE); //BRAKE or FLOAT (Coast)
-//        rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//        leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//        leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//
-//
-//        //Update Driver Station Status Message after init
-//        telemetry.addData("Status:", "Initialized");
-//        telemetry.update();
-//    }
+public class AutoMoveOffLineFwd extends ParentOpMode {
 
     /**
      * runOpMode() will be overridden in child OpMode.
@@ -122,25 +80,14 @@ public class OpMode extends ParentOpMode {
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
-
-//            setSpindexerServo();
-
-            inputRubberMotor();
-            MoveSpindexServoV3();
-            controlOfShotgun();
-            toggleSnail();
-            holonomicFieldCentric();
-
-//            holonomic();
-//            tankdrive(left_sticky_y(),right_sticky_y());
-
-            autoRead();
-
+           autoHolonomicFieldCentric(0.5, 90, 0);
+           sleep(1500);
+           stopDrive();
             checkEmergencyStop(); // Stops motors and Terminates if buttons are pressed
             //without additional code in the while(opModeIsActive) loop.
 
-            displayTelemetry();
             telemetry.update();
+            break;
         }
     }
 
