@@ -127,7 +127,7 @@ public class OpMode extends ParentOpMode {
 //            setSpindexerServo();
 
             inputRubberMotor();
-            MoveSpindexServoV3();
+            MoveSpindexMotorV1();
             controlOfShotgun();
             toggleSnail();
             holonomicFieldCentric();

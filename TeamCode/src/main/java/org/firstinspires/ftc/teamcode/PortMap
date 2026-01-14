@@ -25,8 +25,8 @@ Expansion Hub
 Motor Ports                    Configuration Names   color
     0   Shooter                 shooter               Neon Yellow
     1   Intake                  Intake                Yellow
-    2   spindex motor           spindexerMotor        Grey
-    3
+    2
+    3   spindex motor           spindexerMotor        Grey
 
 Servo Ports
     0   Snail Servo            snail_servo            Green
@@ -34,7 +34,7 @@ Servo Ports
     2  InTake Servo            intakeServo            Gold
     3
     4
-    5  Trigger Servo           triggerServo           Blue
+    5  Trigger Servo           triggerServo          o  Blue
 
 Digital Channels
     0   SpindexPositionSwitch   spindex position switch

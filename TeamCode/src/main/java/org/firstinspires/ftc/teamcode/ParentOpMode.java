@@ -142,7 +142,7 @@ public class ParentOpMode extends LinearOpMode {
     int spinnyGoHere = 0; // target position of the spindexer
 
     int spindexerArrayIndex = 0;            // For the color array, the index of the ball in the intake position
-    int ShootgunIndex = 2;                  // For the color array, the index of the ball in the shooter position
+    int ShootgunIndex = 2;// For the color array, the index of the ball in the shooter position
     String tempBulletColor;
     boolean tempBulletolorIsSaved = false;
     boolean ToggleSpeed = false;
@@ -150,6 +150,7 @@ public class ParentOpMode extends LinearOpMode {
     double triggerUp = 0.29; //0.255
 
     double snailPosition = 0.450;
+    String snailDiretion = "retracted";
 
     final float colorSensorGain = (float) 17.5;
 
@@ -181,6 +182,7 @@ public class ParentOpMode extends LinearOpMode {
         shotgunLoadingColorSensor = hardwareMap.get(NormalizedColorSensor.class, "shotgun_color");
         shotgunLoadingColorSensor.setGain(colorSensorGain);
         //Set motor run mode (esp. if using SPARK Mini motor controller(s) for drivetrain)
+
 
         //Set Motor  and servo Directions
         rightFront.setDirection(DcMotor.Direction.REVERSE);
@@ -640,8 +642,12 @@ public class ParentOpMode extends LinearOpMode {
             }
 
         }
-        double spindexPos = hackyPosArray[hackyPosIndex];
-        spindexServo.setPosition(spindexPos);
+        spinMotor.setTargetPosition(spinnyGoHere);
+        spinMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        spinMotor.setPower(0.5);
+
+        telemetry.addData("actual motor position", spinMotor.getCurrentPosition());
+        telemetry.addData("motor tick target position", spinnyGoHere);
     }
 
     public boolean ColorGreen() {
@@ -743,7 +749,7 @@ public class ParentOpMode extends LinearOpMode {
         telemetry.addData("Spindex in position", SpindexInPosition());
         telemetry.addData("Spindex INDEX!", hackyPosIndex);
         telemetry.addData("Flywheel Button:", shotgunSpinyPB());
-
+        telemetry.addData("Snail is", snailDiretion);
 
         ColorIs();
 
@@ -967,10 +973,10 @@ public class ParentOpMode extends LinearOpMode {
 
         if(snailPos == 0){
             morePower = snailPosition;
-            telemetry.addData("Snail","down");
+            snailDiretion = "extended";
         }else{
             morePower = 0;
-            telemetry.addData("Snail","up");
+            snailDiretion = "retracted";
         }
         snailServo.setPosition(morePower);
     }
@@ -1006,6 +1012,23 @@ public class ParentOpMode extends LinearOpMode {
         }
     }
 
+//    public void prerecordColors(){
+//        setServoPosition0(servoPosition0);
+//        while (!SpindexInPosition()){
+//        }
+//        autoRead();
+//        setServoPosition0(servoPosition1);
+//        while (!SpindexInPosition()){
+//        }
+//        autoRead();
+//        setServoPosition0(servoPosition2);
+//        while (!SpindexInPosition()){
+//        }
+//        autoRead();
+//        setServoPosition0(servoPosition0);
+//    }
+//
+
     public void prerecordColors(){
         setServoPosition0(servoPosition0);
         while (!SpindexInPosition()){
@@ -1021,6 +1044,8 @@ public class ParentOpMode extends LinearOpMode {
         autoRead();
         setServoPosition0(servoPosition0);
     }
+
+
     public void TestingSmallIncrementV2(){
         if (IncrementOncePBV2()){
             MoveServo(true);
