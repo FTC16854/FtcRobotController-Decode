@@ -644,7 +644,7 @@ public class ParentOpMode extends LinearOpMode {
         }
         spinMotor.setTargetPosition(spinnyGoHere);
         spinMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        spinMotor.setPower(0.5);
+        spinMotor.setPower(0.25);
 
         telemetry.addData("actual motor position", spinMotor.getCurrentPosition());
         telemetry.addData("motor tick target position", spinnyGoHere);
