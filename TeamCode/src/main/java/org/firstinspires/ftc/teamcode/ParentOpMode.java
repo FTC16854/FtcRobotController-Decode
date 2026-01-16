@@ -143,13 +143,16 @@ public class ParentOpMode extends LinearOpMode {
 
     int spindexerArrayIndex = 0;            // For the color array, the index of the ball in the intake position
     int ShootgunIndex = 2;// For the color array, the index of the ball in the shooter position
+    int shotgunTestSpeed = 1750;
+
     String tempBulletColor;
     boolean tempBulletolorIsSaved = false;
+
     boolean ToggleSpeed = false;
     double triggerDown = 0;
     double triggerUp = 0.29; //0.255
 
-    double snailPosition = 0.450;
+    double snailPosition = 0.585; //0.450
     String snailDiretion = "retracted";
 
     final float colorSensorGain = (float) 17.5;
@@ -281,8 +284,8 @@ public class ParentOpMode extends LinearOpMode {
         return (gamepad1.b && gamepad1.y) || (gamepad2.b && gamepad2.y);
     }
     public boolean SnailPB_was_Released(){return gamepad1.aWasReleased();}
-    public boolean IncrementorPlusButton(){return gamepad1.dpad_up;}
-    public boolean IncrementorMinusButton(){return gamepad1.dpad_down;}
+    public boolean IncrementorPlusButton(){return gamepad2.dpad_up;}
+    public boolean IncrementorMinusButton(){return gamepad2.dpad_down;}
     public boolean IncrementOncePB(){return gamepad1.xWasReleased();}
     public boolean IncrementOncePBV2(){return gamepad1.yWasReleased();}
     /****************************/
@@ -384,6 +387,49 @@ public class ParentOpMode extends LinearOpMode {
             shotgunTriggerServo.setPosition(triggerDown);
 
         }
+
+    }
+
+
+    public void shotgunSpeedTest(){
+        double shped = shotgunTestSpeed; //1750 // 1630
+        double NoTolerance = 100;
+        double currentVelocity = shotgunMotor.getVelocity();
+
+        if(IncrementorPlusButton()){
+            shotgunTestSpeed += 10;
+        } else if (IncrementorMinusButton()) {
+            shotgunTestSpeed -= 10;
+        }
+
+//        if (ShotgunHasBall()){
+//            if (tempBulletColor == "None"){
+//                tempBulletColor = colorArray[ShootgunIndex];
+//            }else {
+//                colorArray[ShootgunIndex] = tempBulletColor;
+//            }
+//        }
+
+        if (shotgunSpinyPB()){
+//            shotgunSpiny(shped);
+            shotgunMotor.setVelocity(shped);
+//            telemetry.addData("AAAAHHHHHHHHH","");
+//            telemetry.update();
+
+        } else {
+            shotgunSpiny(0);
+        }
+
+        if (shotgunTriggerPB() && shped >= currentVelocity - NoTolerance && shped <= currentVelocity + NoTolerance){
+            //gunTriggerSafety(triggerUp);
+            shotgunTriggerServo.setPosition(triggerUp);
+            //Added didShooterShoot() to gunTriggerSafety()
+        } else {
+            //gunTriggerSafety(triggerDown);
+            shotgunTriggerServo.setPosition(triggerDown);
+
+        }
+
 
     }
 
@@ -753,12 +799,12 @@ public class ParentOpMode extends LinearOpMode {
 
         ColorIs();
 
-        telemetry.addData("spindex servo position", getSpindexPosition());
+//        telemetry.addData("spindex servo position", getSpindexPosition());
 ////        telemetry.addData("L pressed",gamepad1.leftBumperWasPressed());
 ////        telemetry.addData("R pressed",gamepad1.rightBumperWasPressed());
 //        telemetry.addData("L released",gamepad1.leftBumperWasReleased());
 //        telemetry.addData("R released",gamepad1.rightBumperWasReleased());
-
+        telemetry.addData("shotgun target",shotgunTestSpeed);
         telemetry.addData("shotgun velocity",shotgunMotor.getVelocity());
 //        telemetry.addData("shotgun has ball: ", ShotgunHasBall());
 //        for (int i = 0; i<3; i++){
@@ -984,6 +1030,7 @@ public class ParentOpMode extends LinearOpMode {
     public double getSpindexPosition(){
         return spindexServo.getPosition();
     }
+
 
     public void MoveServo(boolean down){
         double movement = spindexServo.getPosition();

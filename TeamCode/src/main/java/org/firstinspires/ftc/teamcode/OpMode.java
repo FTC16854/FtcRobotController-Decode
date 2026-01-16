@@ -128,7 +128,8 @@ public class OpMode extends ParentOpMode {
 
             inputRubberMotor();
             MoveSpindexMotorV1();
-            controlOfShotgun();
+//            controlOfShotgun();
+            shotgunSpeedTest();
             toggleSnail();
             holonomicFieldCentric();
 
