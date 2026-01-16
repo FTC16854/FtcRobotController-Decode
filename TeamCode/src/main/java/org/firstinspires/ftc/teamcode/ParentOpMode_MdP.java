@@ -331,7 +331,7 @@ public class ParentOpMode_MdP extends LinearOpMode {
     }
 
     public void gunTriggerSafety(double position) {
-        if (SpindexInPosition()) {
+        if (SpindexInPosition()) {  //TODO
             if (position == triggerUp){
                 telemetry.addData("shooting","yes");
             }
@@ -379,8 +379,8 @@ public class ParentOpMode_MdP extends LinearOpMode {
         }
 
         if (shotgunTriggerPB() && shped >= currentVelocity - NoTolerance && shped <= currentVelocity + NoTolerance){
-            //gunTriggerSafety(triggerUp);
-            shotgunTriggerServo.setPosition(triggerUp);
+            gunTriggerSafety(triggerUp);
+            shotgunTriggerServo.setPosition(triggerUp); //no safety
             //Added didShooterShoot() to gunTriggerSafety()
         } else {
             //gunTriggerSafety(triggerDown);
@@ -499,6 +499,9 @@ public class ParentOpMode_MdP extends LinearOpMode {
     }
 
     public boolean SpindexInPosition() {
+        return !spindexPositionSwitch.getState();
+    }
+    public boolean SpindexIsHome() {
         return !spindexPositionSwitch.getState();
     }
 
@@ -997,7 +1000,7 @@ public class ParentOpMode_MdP extends LinearOpMode {
         }
     }
 
-
+    //
 
     public void zeroSpindexer(){
         if(SpindexInPosition() && !spindexerWasReset){    //Reset encoder, then set motor back to normal mode
@@ -1019,7 +1022,10 @@ public class ParentOpMode_MdP extends LinearOpMode {
         } //Rotate only in positive direction until past targetPos
         else{    // Then, actually set as target position and use built-in goToPosition function
             spindexTargetPosition = targetPos;
+            spindexerMotor.setTargetPosition(targetPos);
+            spindexerMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             spindexerMotor.setPower(spindexSpeed);
+
         }
     }
 
@@ -1033,7 +1039,7 @@ public class ParentOpMode_MdP extends LinearOpMode {
 
         spindexerMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        while(opModeInInit() && !SpindexInPosition()){  //run until limit switch triggered
+        while(opModeInInit() && !SpindexIsHome()){  //run until limit switch triggered
             spindexerMotor.setPower(homingSpeed);
             telemetry.addData("Homing spindexer", "...spinning...");
             telemetry.update();

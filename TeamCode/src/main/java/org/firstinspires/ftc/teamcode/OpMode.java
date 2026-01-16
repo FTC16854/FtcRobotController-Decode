@@ -126,7 +126,7 @@ public class OpMode extends ParentOpMode {
 
 //            setSpindexerServo();
 
-            inputRubberMotor();
+            inputRubberMotorExtreme();
             MoveSpindexMotorV1();
 //            controlOfShotgun();
             shotgunSpeedTest();
@@ -136,7 +136,7 @@ public class OpMode extends ParentOpMode {
 //            holonomic();
 //            tankdrive(left_sticky_y(),right_sticky_y());
 
-            autoRead();
+//            autoRead();
 
             checkEmergencyStop(); // Stops motors and Terminates if buttons are pressed
             //without additional code in the while(opModeIsActive) loop.

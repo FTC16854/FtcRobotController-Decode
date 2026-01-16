@@ -199,6 +199,7 @@ public class ParentOpMode extends LinearOpMode {
         spindexServo.setDirection(Servo.Direction.REVERSE);
         shotgunTriggerServo.setDirection(Servo.Direction.REVERSE);
         snailServo.setDirection(Servo.Direction.REVERSE);
+        TheKeeperOfTheBalls.setDirection(CRServo.Direction.REVERSE);
 
         //Set brake or coast modes.
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE); //BRAKE or FLOAT (Coast)
@@ -379,8 +380,8 @@ public class ParentOpMode extends LinearOpMode {
         }
 
         if (shotgunTriggerPB() && shped >= currentVelocity - NoTolerance && shped <= currentVelocity + NoTolerance){
-            //gunTriggerSafety(triggerUp);
-            shotgunTriggerServo.setPosition(triggerUp);
+            gunTriggerSafety(triggerUp);
+//            shotgunTriggerServo.setPosition(triggerUp); //No safety
             //Added didShooterShoot() to gunTriggerSafety()
         } else {
             //gunTriggerSafety(triggerDown);
@@ -542,6 +543,16 @@ public class ParentOpMode extends LinearOpMode {
     }
 
     public boolean SpindexInPosition() {
+        int whenSpinnyIsThereButNotFully = 10;
+        int whereSpinnyCurrentlyIsAt = spinMotor.getCurrentPosition();
+        int target = spinnyGoHere;
+        //todo fix
+
+        return ((whereSpinnyCurrentlyIsAt < target + whenSpinnyIsThereButNotFully) || (whereSpinnyCurrentlyIsAt > target - whenSpinnyIsThereButNotFully));
+
+    }
+
+    public boolean SpindexIsHome() {
         return !spindexPositionSwitch.getState();
     }
 
@@ -655,7 +666,7 @@ public class ParentOpMode extends LinearOpMode {
     //new spindexer stuff
     public void spinnyHome(){
         spinMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        if (SpindexInPosition()){
+        if (SpindexIsHome()){
             spinMotor.setPower(0);
             spinMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             spinMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
