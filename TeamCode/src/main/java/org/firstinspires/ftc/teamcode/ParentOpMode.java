@@ -132,29 +132,24 @@ public class ParentOpMode extends LinearOpMode {
             0.9028, //12
             0.9739, //13
             };
-
     int colorPosIndex = 2;
     int hackyPosIndex = 2;
-
     double SpindexPosition = 0.0139;        // This is for the our hacky manual controls
     double SpindexIncrement = 0.07;//
     int SpindexMotorIncrement = (int)1425.1/3;//==475 currently
     int spinnyGoHere = 0; // target position of the spindexer
-
     int spindexerArrayIndex = 0;            // For the color array, the index of the ball in the intake position
     int ShootgunIndex = 2;// For the color array, the index of the ball in the shooter position
     int shotgunTestSpeed = 1750;
-
     String tempBulletColor;
     boolean tempBulletolorIsSaved = false;
-
+    boolean shotgunSpinyPB = false;
     boolean ToggleSpeed = false;
+    boolean ToggleIntake = false;
     double triggerDown = 0;
     double triggerUp = 0.29; //0.255
-
     double snailPosition = 0.585; //0.450
     String snailDiretion = "retracted";
-
     final float colorSensorGain = (float) 17.5;
 
     public void initialize() {
@@ -265,7 +260,7 @@ public class ParentOpMode extends LinearOpMode {
     public double left_sticky_y() {return -gamepad1.left_stick_y;}
     public double right_sticky_y() {return -gamepad1.right_stick_y;}
     public double right_sticky_x() {return gamepad1.right_stick_x;}
-
+    public boolean slowDownStick() {return gamepad1.rightStickButtonWasPressed();}
     // Buttons
     public boolean spindex_left() {return gamepad1.left_bumper;}
     public boolean spindex_left_was_pressed() {return gamepad2.leftBumperWasPressed();}
@@ -273,10 +268,10 @@ public class ParentOpMode extends LinearOpMode {
     public boolean spindex_right() {return gamepad1.right_bumper;}
     public boolean spindex_right_was_pressed() {return gamepad2.rightBumperWasPressed();}
     public boolean spindex_right_was_released() {return gamepad2.rightBumperWasReleased();}
-    public boolean shotgunSpinyPB() {return gamepad2.a;}
-    public boolean spindexerResetPB(){return gamepad2.dpad_up&& gamepad2.y;}
-
+    public boolean shotgunToggleSpinyPB() {return gamepad2.aWasPressed();}
+    public boolean spindexerResetPB(){return gamepad2.dpad_up && gamepad2.y;}
     public boolean shotgunTriggerPB() {return gamepad2.right_trigger > 0.5;}
+    public boolean rubberToggleIntakePB() {return gamepad1.bWasPressed();}
     public boolean rubberIntakePB() {return gamepad1.right_trigger>0.5;}
     public boolean rubberOuttakePB() {return gamepad1.right_bumper;}
     public boolean FieldCentricReset() {return gamepad1.back || gamepad2.back;}
@@ -369,7 +364,7 @@ public class ParentOpMode extends LinearOpMode {
 //            }
 //        }
 
-        if (shotgunSpinyPB()){
+        if (shotgunSpinyPB){
 //            shotgunSpiny(shped);
             shotgunMotor.setVelocity(shped);
 //            telemetry.addData("AAAAHHHHHHHHH","");
@@ -411,7 +406,7 @@ public class ParentOpMode extends LinearOpMode {
 //            }
 //        }
 
-        if (shotgunSpinyPB()){
+        if (shotgunSpinyPB){
 //            shotgunSpiny(shped);
             shotgunMotor.setVelocity(shped);
 //            telemetry.addData("AAAAHHHHHHHHH","");
@@ -460,7 +455,7 @@ public class ParentOpMode extends LinearOpMode {
 
     public void inputRubberMotorExtreme() {
         double shpeed = 1;
-        if (rubberIntakePB()) {
+        if (rubberIntakePB() || ToggleIntake) {
             runRubberMotorExtreme(shpeed);
         } else if (rubberOuttakePB()) {
             runRubberMotorExtreme(-shpeed);
@@ -805,7 +800,7 @@ public class ParentOpMode extends LinearOpMode {
     public void displayTelemetry(){
         telemetry.addData("Spindex in position", SpindexInPosition());
         telemetry.addData("Spindex INDEX!", hackyPosIndex);
-        telemetry.addData("Flywheel Button:", shotgunSpinyPB());
+        telemetry.addData("Flywheel Button:", shotgunSpinyPB);
         telemetry.addData("Snail is", snailDiretion);
 
         ColorIs();
@@ -846,11 +841,17 @@ public class ParentOpMode extends LinearOpMode {
         double robotHead = getAngler();
         double LeftStickValuex = left_sticky_x();
         double LeftStickValueY = left_sticky_y();
-        if (gamepad1.leftStickButtonWasPressed()){
+        if (rubberToggleIntakePB()){
+            ToggleIntake = !ToggleIntake;
+        }
+        if (shotgunToggleSpinyPB()){
+            shotgunSpinyPB = !shotgunSpinyPB;
+        }
+        if (slowDownStick()){
             ToggleSpeed = !ToggleSpeed;
         }
 
-        if(gamepad2.x || ToggleSpeed){
+        if(ToggleSpeed){
             double SlowDownStick = 0.5;
             rotateVelocity = rotateVelocity * SlowDownStick;
             LeftStickValuex = LeftStickValuex * SlowDownStick;
