@@ -70,9 +70,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
  * override the ParentOpMode runOpMode() method.
  **/
 
-@TeleOp(name="Parent Opmode_MdP", group="Linear Opmode")
+@TeleOp(name="Parent Opmode", group="Linear Opmode")
 @Disabled
-public class ParentOpMode_MdP extends LinearOpMode {
+public class ParentOpMode_MdP2 extends LinearOpMode {
 
     // Declare OpMode members, hardware variables
     public ElapsedTime runtime = new ElapsedTime();
@@ -82,12 +82,10 @@ public class ParentOpMode_MdP extends LinearOpMode {
     private DcMotor rightBack = null;
     private DcMotor leftFront = null;
     private DcMotor leftBack = null;
+    private DcMotor spinMotor = null;
 
     //shotgun motor
     private DcMotorEx shotgunMotor = null;
-
-    //spindexer motor
-    private DcMotorEx spindexerMotor = null;
 
     //intake motor
     private DcMotor rubberIntake = null;
@@ -115,17 +113,9 @@ public class ParentOpMode_MdP extends LinearOpMode {
     double servoPosition1 = 0.0870;   // The second position that the spindexer servo can turn to
     double servoPosition2 = 0.1578;   // The third position that the spindexer servo can turn to
 
-    // Position Indices for
-    int spindexPosition0 = 0;
-    int spindexPosition1 = 120;
-    int spindexPosition2 = 240;
-    boolean spindexerWasReset = false;
-    int spindexTargetPosition = 0;
-
-
     String[] colorArray = new String[3];    // The colors of the different balls in the spindexer
-//    double[] PosArray = {servoPosition0, servoPosition1, servoPosition2};   // The different positions that the spindexer servo can turn to
-    double[] PosArray = {spindexPosition0, spindexPosition1, spindexPosition2};   // The different positions that the spindexer motor can turn to
+    double[] PosArray = {servoPosition0, servoPosition1, servoPosition2};   // The different positions that the spindexer servo can turn to
+
     double[] hackyPosArray =
             {
             0.0130, //0
@@ -148,17 +138,23 @@ public class ParentOpMode_MdP extends LinearOpMode {
     int hackyPosIndex = 2;
 
     double SpindexPosition = 0.0139;        // This is for the our hacky manual controls
-    double SpindexIncrement = 0.07;         //
+    double SpindexIncrement = 0.07;//
+    int SpindexMotorIncrement = (int)1425.1/3;//==475 currently
+    int spinnyGoHere = 0; // target position of the spindexer
 
     int spindexerArrayIndex = 0;            // For the color array, the index of the ball in the intake position
-    int ShootgunIndex = 2;                  // For the color array, the index of the ball in the shooter position
+    int ShootgunIndex = 2;// For the color array, the index of the ball in the shooter position
+    int shotgunTestSpeed = 1750;
+
     String tempBulletColor;
     boolean tempBulletolorIsSaved = false;
+
     boolean ToggleSpeed = false;
     double triggerDown = 0;
     double triggerUp = 0.29; //0.255
 
-    double snailPosition = 0.450;
+    double snailPosition = 0.585; //0.450
+    String snailDiretion = "retracted";
 
     final float colorSensorGain = (float) 17.5;
 
@@ -173,7 +169,7 @@ public class ParentOpMode_MdP extends LinearOpMode {
         leftBack = hardwareMap.get(DcMotor.class, "lb_drive");
         shotgunMotor = hardwareMap.get(DcMotorEx.class, "shooter");
         rubberIntake = hardwareMap.get(DcMotor.class, "intake");
-        spindexerMotor = hardwareMap.get(DcMotorEx.class,"spindex_motor");
+        spinMotor = hardwareMap.get(DcMotor.class, "spindexerMotor");
 
         TheKeeperOfTheBalls = hardwareMap.get(CRServo.class,"intakeServo");
         shotgunTriggerServo = hardwareMap.get(Servo.class, "triggerServo");
@@ -191,6 +187,7 @@ public class ParentOpMode_MdP extends LinearOpMode {
         shotgunLoadingColorSensor.setGain(colorSensorGain);
         //Set motor run mode (esp. if using SPARK Mini motor controller(s) for drivetrain)
 
+
         //Set Motor  and servo Directions
         rightFront.setDirection(DcMotor.Direction.REVERSE);
         rightBack.setDirection(DcMotor.Direction.FORWARD);
@@ -198,18 +195,21 @@ public class ParentOpMode_MdP extends LinearOpMode {
         leftBack.setDirection(DcMotor.Direction.REVERSE);
         shotgunMotor.setDirection(DcMotor.Direction.REVERSE);
         rubberIntake.setDirection(DcMotorSimple.Direction.REVERSE);
-        spindexerMotor.setDirection(DcMotorEx.Direction.FORWARD);
+        spinMotor.setDirection(DcMotor.Direction.FORWARD);
 
         spindexServo.setDirection(Servo.Direction.REVERSE);
         shotgunTriggerServo.setDirection(Servo.Direction.REVERSE);
         snailServo.setDirection(Servo.Direction.REVERSE);
+        TheKeeperOfTheBalls.setDirection(CRServo.Direction.REVERSE);
+
         //Set brake or coast modes.
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE); //BRAKE or FLOAT (Coast)
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        shotgunMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        shotgunMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         rubberIntake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        spinMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         //Update Driver Station Status Message after init
         telemetry.addData("Status:", "Initialized");
@@ -242,6 +242,8 @@ public class ParentOpMode_MdP extends LinearOpMode {
             // code here should never actually execute in parent opmode.
             // This function will be be overridden by child opmode classes
 
+    int spinmotortarget = 0;
+    int spinmotorincrement = (int)1425.1/3; //== 475 currently
 
             //include emergency stop check in all runOpMode() functions/methods
             //implementation depends on which E-stop function will be used (boolean/void)
@@ -284,8 +286,8 @@ public class ParentOpMode_MdP extends LinearOpMode {
         return (gamepad1.b && gamepad1.y) || (gamepad2.b && gamepad2.y);
     }
     public boolean SnailPB_was_Released(){return gamepad1.aWasReleased();}
-    public boolean IncrementorPlusButton(){return gamepad1.dpad_up;}
-    public boolean IncrementorMinusButton(){return gamepad1.dpad_down;}
+    public boolean IncrementorPlusButton(){return gamepad2.dpad_up;}
+    public boolean IncrementorMinusButton(){return gamepad2.dpad_down;}
     public boolean IncrementOncePB(){return gamepad1.xWasReleased();}
     public boolean IncrementOncePBV2(){return gamepad1.yWasReleased();}
     /****************************/
@@ -331,7 +333,7 @@ public class ParentOpMode_MdP extends LinearOpMode {
     }
 
     public void gunTriggerSafety(double position) {
-        if (SpindexInPosition()) {  //TODO
+        if (SpindexInPosition()) {
             if (position == triggerUp){
                 telemetry.addData("shooting","yes");
             }
@@ -380,13 +382,56 @@ public class ParentOpMode_MdP extends LinearOpMode {
 
         if (shotgunTriggerPB() && shped >= currentVelocity - NoTolerance && shped <= currentVelocity + NoTolerance){
             gunTriggerSafety(triggerUp);
-            shotgunTriggerServo.setPosition(triggerUp); //no safety
+//            shotgunTriggerServo.setPosition(triggerUp); //No safety
             //Added didShooterShoot() to gunTriggerSafety()
         } else {
             //gunTriggerSafety(triggerDown);
             shotgunTriggerServo.setPosition(triggerDown);
 
         }
+
+    }
+
+
+    public void shotgunSpeedTest(){
+        double shped = shotgunTestSpeed; //1750 // 1630
+        double NoTolerance = 100;
+        double currentVelocity = shotgunMotor.getVelocity();
+
+        if(IncrementorPlusButton()){
+            shotgunTestSpeed += 10;
+        } else if (IncrementorMinusButton()) {
+            shotgunTestSpeed -= 10;
+        }
+
+//        if (ShotgunHasBall()){
+//            if (tempBulletColor == "None"){
+//                tempBulletColor = colorArray[ShootgunIndex];
+//            }else {
+//                colorArray[ShootgunIndex] = tempBulletColor;
+//            }
+//        }
+
+        if (shotgunSpinyPB()){
+//            shotgunSpiny(shped);
+            shotgunMotor.setVelocity(shped);
+//            telemetry.addData("AAAAHHHHHHHHH","");
+//            telemetry.update();
+
+        } else {
+            shotgunSpiny(0);
+        }
+
+        if (shotgunTriggerPB() && shped >= currentVelocity - NoTolerance && shped <= currentVelocity + NoTolerance){
+            //gunTriggerSafety(triggerUp);
+            shotgunTriggerServo.setPosition(triggerUp);
+            //Added didShooterShoot() to gunTriggerSafety()
+        } else {
+            //gunTriggerSafety(triggerDown);
+            shotgunTriggerServo.setPosition(triggerDown);
+
+        }
+
 
     }
 
@@ -499,8 +544,15 @@ public class ParentOpMode_MdP extends LinearOpMode {
     }
 
     public boolean SpindexInPosition() {
-        return !spindexPositionSwitch.getState();
+        int whenSpinnyIsThereButNotFully = 10;
+        int whereSpinnyCurrentlyIsAt = spinMotor.getCurrentPosition();
+        int target = spinnyGoHere;
+        //todo fix
+
+        return ((whereSpinnyCurrentlyIsAt < target + whenSpinnyIsThereButNotFully) || (whereSpinnyCurrentlyIsAt > target - whenSpinnyIsThereButNotFully));
+
     }
+
     public boolean SpindexIsHome() {
         return !spindexPositionSwitch.getState();
     }
@@ -612,11 +664,48 @@ public class ParentOpMode_MdP extends LinearOpMode {
         //setSpindexerServo();
     }
 
-    void setSpindexToZero(){
-        hackyPosIndex = 0;
+    //new spindexer stuff
+    public void spinnyHome(){
+        spinMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        if (SpindexIsHome()){
+            spinMotor.setPower(0);
+            spinMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            spinMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        } else {
+            spinMotor.setPower(0.1);
+        }
+    }
 
-        double spindexPos = hackyPosArray[hackyPosIndex];
-        spindexServo.setPosition(spindexPos);
+    public void MoveSpindexMotorV1(){
+        if (colorPosIndex > 2){
+            colorPosIndex = colorPosIndex - 3;
+        }
+
+        if (shotgunTriggerServo.getPosition() == triggerDown){
+            if (!IsBall() && SpindexInPosition()){
+                if (spindex_left_was_Released()){
+                    spinnyGoHere  -= SpindexMotorIncrement;
+                    colorPosIndex -= 1;
+                }
+            }
+            if (spindex_right_was_released()) {
+                spinnyGoHere  += SpindexMotorIncrement;
+                colorPosIndex += 1;
+            }
+
+            if (spindexerResetPB() && rubberOuttakePB()){
+                spinnyGoHere = 0;
+                colorPosIndex = 0;
+                //todo: run outtake
+            }
+
+        }
+        spinMotor.setTargetPosition(spinnyGoHere);
+        spinMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        spinMotor.setPower(0.25);
+
+        telemetry.addData("actual motor position", spinMotor.getCurrentPosition());
+        telemetry.addData("motor tick target position", spinnyGoHere);
     }
 
     public boolean ColorGreen() {
@@ -657,6 +746,13 @@ public class ParentOpMode_MdP extends LinearOpMode {
         } else {
             return false;
         }
+    }
+
+    public void setSpindexToZero(){
+        hackyPosIndex = 0;
+
+        double spindexPos = hackyPosArray[hackyPosIndex];
+        spindexServo.setPosition(spindexPos);
     }
 
     public boolean ShotgunHasBall() {
@@ -711,16 +807,16 @@ public class ParentOpMode_MdP extends LinearOpMode {
         telemetry.addData("Spindex in position", SpindexInPosition());
         telemetry.addData("Spindex INDEX!", hackyPosIndex);
         telemetry.addData("Flywheel Button:", shotgunSpinyPB());
-
+        telemetry.addData("Snail is", snailDiretion);
 
         ColorIs();
 
-        telemetry.addData("spindex servo position", getSpindexPosition());
+//        telemetry.addData("spindex servo position", getSpindexPosition());
 ////        telemetry.addData("L pressed",gamepad1.leftBumperWasPressed());
 ////        telemetry.addData("R pressed",gamepad1.rightBumperWasPressed());
 //        telemetry.addData("L released",gamepad1.leftBumperWasReleased());
 //        telemetry.addData("R released",gamepad1.rightBumperWasReleased());
-
+        telemetry.addData("shotgun target",shotgunTestSpeed);
         telemetry.addData("shotgun velocity",shotgunMotor.getVelocity());
 //        telemetry.addData("shotgun has ball: ", ShotgunHasBall());
 //        for (int i = 0; i<3; i++){
@@ -935,10 +1031,10 @@ public class ParentOpMode_MdP extends LinearOpMode {
 
         if(snailPos == 0){
             morePower = snailPosition;
-            telemetry.addData("Snail","down");
+            snailDiretion = "extended";
         }else{
             morePower = 0;
-            telemetry.addData("Snail","up");
+            snailDiretion = "retracted";
         }
         snailServo.setPosition(morePower);
     }
@@ -946,6 +1042,7 @@ public class ParentOpMode_MdP extends LinearOpMode {
     public double getSpindexPosition(){
         return spindexServo.getPosition();
     }
+
 
     public void MoveServo(boolean down){
         double movement = spindexServo.getPosition();
@@ -974,6 +1071,23 @@ public class ParentOpMode_MdP extends LinearOpMode {
         }
     }
 
+//    public void prerecordColors(){
+//        setServoPosition0(servoPosition0);
+//        while (!SpindexInPosition()){
+//        }
+//        autoRead();
+//        setServoPosition0(servoPosition1);
+//        while (!SpindexInPosition()){
+//        }
+//        autoRead();
+//        setServoPosition0(servoPosition2);
+//        while (!SpindexInPosition()){
+//        }
+//        autoRead();
+//        setServoPosition0(servoPosition0);
+//    }
+//
+
     public void prerecordColors(){
         setServoPosition0(servoPosition0);
         while (!SpindexInPosition()){
@@ -989,6 +1103,8 @@ public class ParentOpMode_MdP extends LinearOpMode {
         autoRead();
         setServoPosition0(servoPosition0);
     }
+
+
     public void TestingSmallIncrementV2(){
         if (IncrementOncePBV2()){
             MoveServo(true);
@@ -1000,69 +1116,56 @@ public class ParentOpMode_MdP extends LinearOpMode {
         }
     }
 
-    //
+    public void autoShoot(int numShots){
+        int shooterSpeed = 1750; // counts/sec
+        int spinUpDelay = 2000;   // ms
+        int shootDelay = 1500;    // ms
+        int servoDownDelay = 1000;
+        int indexDelay = 1000;
 
-    public void zeroSpindexer(){
-        if(SpindexInPosition() && !spindexerWasReset){    //Reset encoder, then set motor back to normal mode
-            spindexerMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            spindexerMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            spindexerWasReset = true;
-        }
-    }
+        shotgunSpiny(shooterSpeed);
+        sleep(spinUpDelay);
 
-    public void setSpindexerArrayIndex(int index){   //May or may not need to be a function
-        spindexerArrayIndex = index;
-    }
+        for(int i = 0; i<numShots; i++){
+            moveTriggerServo(triggerUp);
 
-    public void goToSpindexerPosition(int targetPos){
-        double spindexSpeed = 0.5;
+            sleep(shootDelay);
+            moveTriggerServo(triggerDown);
 
-        if(spindexerMotor.getCurrentPosition() < spindexTargetPosition){
-            spindexerMotor.setPower(spindexSpeed);
-        } //Rotate only in positive direction until past targetPos
-        else{    // Then, actually set as target position and use built-in goToPosition function
-            spindexTargetPosition = targetPos;
-            spindexerMotor.setTargetPosition(targetPos);
-            spindexerMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            spindexerMotor.setPower(spindexSpeed);
-
-        }
-    }
-
-    public boolean spindexMotorInPosition(){
-        //return true if motor in position (at target position) +/- tolerance
-        return true;
-    }
-
-
-    public void homeSpindexer(){
-        double homingSpeed = 0.3;
-
-        spindexerMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        while(opModeInInit() && !SpindexIsHome()){  //run until limit switch triggered
-            spindexerMotor.setPower(homingSpeed);
-            telemetry.addData("Homing spindexer", "...spinning...");
-            telemetry.update();
+            sleep(servoDownDelay);
+            SpindexMotorAutoIndex();
+            sleep(indexDelay);
         }
 
-        //Stop motors. Reset encoders. Set motors to run without velocity control
-        spindexerMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        spindexerMotor.setPower(0);
-        spindexerMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        telemetry.addData("Spindexer homed", "Home");
-        telemetry.update();
     }
 
+    public void SpindexMotorAutoIndex(){
 
+        spinnyGoHere  += SpindexMotorIncrement;
+        colorPosIndex += 1;
+
+        if (colorPosIndex > 2){
+            colorPosIndex = colorPosIndex - 3;
+        }
+
+
+        spinMotor.setTargetPosition(spinnyGoHere);
+        spinMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        spinMotor.setPower(0.25);
+
+        telemetry.addData("actual motor position", spinMotor.getCurrentPosition());
+        telemetry.addData("motor tick target position", spinnyGoHere);
+    }
+
+    public void storeHeadingOffset(){
+        blackboard.put("HeadingOffset",getAngler());
+    }
+
+    public double retrieveHeadingOffset(){
+        return (int) blackboard.getOrDefault("HeadingOffset",0);
+    }
 
 }
-
-
-
-
-
 
 /*
 TODO:   not listed in any particular order of importance..................................
