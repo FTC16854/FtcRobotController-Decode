@@ -29,8 +29,8 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import android.util.Size;
+
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
@@ -40,6 +40,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.List;
+import java.util.Objects;
 
 /*
  * This OpMode illustrates the basics of AprilTag recognition and pose estimation,
@@ -66,8 +67,8 @@ import java.util.List;
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list.
  */
 @TeleOp(name = "Concept: AprilTag", group = "Concept")
-@Disabled
-public class ConceptAprilTag extends LinearOpMode {
+//@Disabled
+public class VisionParentOpMode extends ParentOpMode {
 
     private static final boolean USE_WEBCAM = true;  // true for webcam, false for phone camera
 
@@ -80,7 +81,7 @@ public class ConceptAprilTag extends LinearOpMode {
      * The variable to store our instance of the vision portal.
      */
     private VisionPortal visionPortal;
-
+    int goalID = 0;
     @Override
     public void runOpMode() {
 
@@ -120,7 +121,7 @@ public class ConceptAprilTag extends LinearOpMode {
     /**
      * Initialize the AprilTag processor.
      */
-    private void initAprilTag() {
+    public void initAprilTag() {
 
         // Create the AprilTag processor.
         aprilTag = new AprilTagProcessor.Builder()
@@ -136,8 +137,21 @@ public class ConceptAprilTag extends LinearOpMode {
             // == CAMERA CALIBRATION ==
             // If you do not manually specify calibration parameters, the SDK will attempt
             // to load a predefined calibration for your camera.
-            //.setLensIntrinsics(578.272, 578.272, 402.145, 221.506)
+            .setLensIntrinsics(1053.66, 1053.66, 508.275, 318.646)
             // ... these parameters are fx, fy, cx, cy.
+
+                /***
+                 *
+                 *nexigo n60 1080p
+                 * Image Resolution: 1024 x 768 pixels
+                 * Focals (pixels) - Fx: 1053.66 Fy: 1053.66
+                 * Optical center - Cx: 508.275 Cy: 318.646
+                 * Radial distortion (Brown's Model)
+                 * K1: -0.391732 K2: 0.125424 K3: 0.0701188
+                 * P1: -0.00309222 P2: -0.00202142
+                 * Skew: 0
+                 *
+                 ***/
 
             .build();
 
@@ -148,7 +162,7 @@ public class ConceptAprilTag extends LinearOpMode {
         // Decimation = 3 ..  Detect 2" Tag from 4  feet away at 30 Frames Per Second (default)
         // Decimation = 3 ..  Detect 5" Tag from 10 feet away at 30 Frames Per Second (default)
         // Note: Decimation can be changed on-the-fly to adapt during a match.
-        //aprilTag.setDecimation(3);
+        aprilTag.setDecimation(3);
 
         // Create the vision portal by using a builder.
         VisionPortal.Builder builder = new VisionPortal.Builder();
@@ -161,13 +175,13 @@ public class ConceptAprilTag extends LinearOpMode {
         }
 
         // Choose a camera resolution. Not all cameras support all resolutions.
-        //builder.setCameraResolution(new Size(640, 480));
+        builder.setCameraResolution(new Size(1024, 768));
 
         // Enable the RC preview (LiveView).  Set "false" to omit camera monitoring.
         //builder.enableLiveView(true);
 
         // Set the stream format; MJPEG uses less bandwidth than default YUY2.
-        //builder.setStreamFormat(VisionPortal.StreamFormat.YUY2);
+        builder.setStreamFormat(VisionPortal.StreamFormat.MJPEG);
 
         // Choose whether or not LiveView stops if no processors are enabled.
         // If set "true", monitor shows solid orange screen if no processors enabled.
@@ -189,7 +203,7 @@ public class ConceptAprilTag extends LinearOpMode {
     /**
      * Add telemetry about AprilTag detections.
      */
-    private void telemetryAprilTag() {
+    public void telemetryAprilTag() {
 
         List<AprilTagDetection> currentDetections = aprilTag.getDetections();
         telemetry.addData("# AprilTags Detected", currentDetections.size());
@@ -205,6 +219,7 @@ public class ConceptAprilTag extends LinearOpMode {
                 telemetry.addLine(String.format("\n==== (ID %d) Unknown", detection.id));
                 telemetry.addLine(String.format("Center %6.0f %6.0f   (pixels)", detection.center.x, detection.center.y));
             }
+
         }   // end for() loop
 
         // Add "key" information to telemetry
@@ -214,4 +229,40 @@ public class ConceptAprilTag extends LinearOpMode {
 
     }   // end method telemetryAprilTag()
 
+    public void Aligner() {
+        if (AlignRobotPB()){
+            AlignRobot();
+        }
+    }
+    public void AlignRobot(){
+        List<AprilTagDetection> currentDetections = aprilTag.getDetections();
+        for (AprilTagDetection detection : currentDetections) {
+            if (detection.metadata != null) {
+                telemetry.addLine(String.format("\n==== (ID %d) %s", detection.id, detection.metadata.name));
+                telemetry.addLine(String.format("XYZ %6.1f %6.1f %6.1f  (inch)", detection.ftcPose.x, detection.ftcPose.y, detection.ftcPose.z));
+                telemetry.addLine(String.format("PRY %6.1f %6.1f %6.1f  (deg)", detection.ftcPose.pitch, detection.ftcPose.roll, detection.ftcPose.yaw));
+                telemetry.addLine(String.format("RBE %6.1f %6.1f %6.1f  (inch, deg, deg)", detection.ftcPose.range, detection.ftcPose.bearing, detection.ftcPose.elevation));
+                if (detection.id == goalID){
+                    if (detection.ftcPose.bearing > 10 || detection.ftcPose.bearing < -10) {
+                        if (detection.ftcPose.bearing > 0){
+                            autoHolonomicFieldCentric(0, 0, -0.5);
+                        }else{
+                            autoHolonomicFieldCentric(0, 0, 0.5);
+                        }
+                    }
+                }
+            } else {
+                telemetry.addLine(String.format("\n==== (ID %d) Unknown", detection.id));
+                telemetry.addLine(String.format("Center %6.0f %6.0f   (pixels)", detection.center.x, detection.center.y));
+            }
+        }
+
+    }
+    public void SetAlliance(String AllianceColor){
+        if(Objects.equals(AllianceColor, "Blue")){
+            goalID = 20;
+        }else{
+            goalID = 24;
+        }
+    }
 }   // end class

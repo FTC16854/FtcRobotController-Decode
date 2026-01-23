@@ -117,26 +117,26 @@ public class ParentOpMode extends LinearOpMode {
 
     double[] hackyPosArray =
             {
-            0.0130, //0
-            0.0870, //1
-            0.1578, //2
-            0.2328, //3
-            0.3083, //4
-            0.3822, //5
-            0.4583, //6
-            0.5400, //7
-            0.6106, //8
-            0.6867, //9
-            0.7600, //10
-            0.8339, //11
-            0.9028, //12
-            0.9739, //13
+                    0.0130, //0
+                    0.0870, //1
+                    0.1578, //2
+                    0.2328, //3
+                    0.3083, //4
+                    0.3822, //5
+                    0.4583, //6
+                    0.5400, //7
+                    0.6106, //8
+                    0.6867, //9
+                    0.7600, //10
+                    0.8339, //11
+                    0.9028, //12
+                    0.9739, //13
             };
     int colorPosIndex = 2;
     int hackyPosIndex = 2;
     double SpindexPosition = 0.0139;        // This is for the our hacky manual controls
     double SpindexIncrement = 0.07;//
-    int SpindexMotorIncrement = (int)1425.1/3;//==475 currently
+    int SpindexMotorIncrement = (int) 1425.1 / 3;//==475 currently
     int spinnyGoHere = 0; // target position of the spindexer
     int spindexerArrayIndex = 0;            // For the color array, the index of the ball in the intake position
     int ShootgunIndex = 2;// For the color array, the index of the ball in the shooter position
@@ -165,14 +165,14 @@ public class ParentOpMode extends LinearOpMode {
         rubberIntake = hardwareMap.get(DcMotor.class, "intake");
         spinMotor = hardwareMap.get(DcMotor.class, "spindexerMotor");
 
-        TheKeeperOfTheBalls = hardwareMap.get(CRServo.class,"intakeServo");
+        TheKeeperOfTheBalls = hardwareMap.get(CRServo.class, "intakeServo");
         shotgunTriggerServo = hardwareMap.get(Servo.class, "triggerServo");
         spindexServo = hardwareMap.get(Servo.class, "spindexServo");
         snailServo = hardwareMap.get(Servo.class, "snail_servo");
 
         spindexPositionSwitch = hardwareMap.get(DigitalChannel.class, "spindex position switch");
 
-        OdometrySensor = hardwareMap.get(SparkFunOTOS .class, "sensor_otos");
+        OdometrySensor = hardwareMap.get(SparkFunOTOS.class, "sensor_otos");
         configureOtos();
 
         bulletIntakeColorSensor = hardwareMap.get(NormalizedColorSensor.class, "sensor_color");
@@ -236,8 +236,8 @@ public class ParentOpMode extends LinearOpMode {
             // code here should never actually execute in parent opmode.
             // This function will be be overridden by child opmode classes
 
-    int spinmotortarget = 0;
-    int spinmotorincrement = (int)1425.1/3; //== 475 currently
+            int spinmotortarget = 0;
+            int spinmotorincrement = (int) 1425.1 / 3; //== 475 currently
 
             //include emergency stop check in all runOpMode() functions/methods
             //implementation depends on which E-stop function will be used (boolean/void)
@@ -256,34 +256,102 @@ public class ParentOpMode extends LinearOpMode {
     //CONTROLLER MAP
 
     // Thumbsticks
-    public double left_sticky_x() {return gamepad1.left_stick_x;}
-    public double left_sticky_y() {return -gamepad1.left_stick_y;}
-    public double right_sticky_y() {return -gamepad1.right_stick_y;}
-    public double right_sticky_x() {return gamepad1.right_stick_x;}
-    public boolean slowDownStick() {return gamepad1.rightStickButtonWasPressed();}
+    public double left_sticky_x() {
+        return gamepad1.left_stick_x;
+    }
+
+    public double left_sticky_y() {
+        return -gamepad1.left_stick_y;
+    }
+
+    public double right_sticky_y() {
+        return -gamepad1.right_stick_y;
+    }
+
+    public double right_sticky_x() {
+        return gamepad1.right_stick_x;
+    }
+
+    public boolean slowDownStick() {
+        return gamepad1.leftStickButtonWasPressed();
+    }
+
     // Buttons
-    public boolean spindex_left() {return gamepad1.left_bumper;}
-    public boolean spindex_left_was_pressed() {return gamepad2.leftBumperWasPressed();}
-    public boolean spindex_left_was_Released() {return gamepad2.leftBumperWasReleased();}
-    public boolean spindex_right() {return gamepad1.right_bumper;}
-    public boolean spindex_right_was_pressed() {return gamepad2.rightBumperWasPressed();}
-    public boolean spindex_right_was_released() {return gamepad2.rightBumperWasReleased();}
-    public boolean shotgunToggleSpinyPB() {return gamepad2.aWasPressed();}
-    public boolean spindexerResetPB(){return gamepad2.dpad_up && gamepad2.y;}
-    public boolean shotgunTriggerPB() {return gamepad2.right_trigger > 0.5;}
-    public boolean rubberToggleIntakePB() {return gamepad1.bWasPressed();}
-    public boolean rubberIntakePB() {return gamepad1.right_trigger>0.5;}
-    public boolean rubberOuttakePB() {return gamepad1.right_bumper;}
-    public boolean FieldCentricReset() {return gamepad1.back || gamepad2.back;}
+    public boolean spindex_left() {
+        return gamepad1.left_bumper;
+    }
+
+    public boolean spindex_left_was_pressed() {
+        return gamepad2.leftBumperWasPressed();
+    }
+
+    public boolean spindex_left_was_Released() {
+        return gamepad2.leftBumperWasReleased();
+    }
+
+    public boolean spindex_right() {
+        return gamepad1.right_bumper;
+    }
+
+    public boolean spindex_right_was_pressed() {
+        return gamepad2.rightBumperWasPressed();
+    }
+
+    public boolean spindex_right_was_released() {
+        return gamepad2.rightBumperWasReleased();
+    }
+
+    public boolean shotgunToggleSpinyPB() {
+        return gamepad2.aWasPressed();
+    }
+
+    public boolean spindexerResetPB() {
+        return gamepad2.dpad_up && gamepad2.y;
+    }
+
+    public boolean shotgunTriggerPB() {
+        return gamepad2.right_trigger > 0.5;
+    }
+
+    public boolean rubberToggleIntakePB() {
+        return gamepad1.bWasPressed();
+    }
+
+    public boolean rubberIntakePB() {
+        return gamepad1.right_trigger > 0.5;
+    }
+
+    public boolean rubberOuttakePB() {
+        return gamepad1.right_bumper;
+    }
+
+    public boolean FieldCentricReset() {
+        return gamepad1.back || gamepad2.back;
+    }
+
     public boolean emergencyButtons() {
         // check for combination of buttons to be pressed before returning true
         return (gamepad1.b && gamepad1.y) || (gamepad2.b && gamepad2.y);
     }
-    public boolean SnailPB_was_Released(){return gamepad1.aWasReleased();}
-    public boolean IncrementorPlusButton(){return gamepad2.dpad_up;}
-    public boolean IncrementorMinusButton(){return gamepad2.dpad_down;}
-    public boolean IncrementOncePB(){return gamepad1.xWasReleased();}
-    public boolean IncrementOncePBV2(){return gamepad1.yWasReleased();}
+
+    public boolean SnailPB_was_Released() {
+        return gamepad1.dpadUpWasPressed();
+    }
+
+    public boolean IncrementorPlusButton() {
+        return gamepad2.dpad_up;
+    }
+
+    public boolean IncrementorMinusButton() {
+        return gamepad2.dpad_down;
+    }
+
+    public boolean AlignRobotPB() {
+        return gamepad1.y;
+    }
+    //public boolean IncrementOncePB(){return gamepad1.xWasReleased();}
+    //public boolean IncrementOncePBV2(){return gamepad1.yWasReleased();}
+
     /****************************/
     // Emergency Stop Functions
     public void checkEmergencyStop() {
@@ -328,11 +396,10 @@ public class ParentOpMode extends LinearOpMode {
 
     public void gunTriggerSafety(double position) {
         if (SpindexInPosition()) {
-            if (position == triggerUp){
-                telemetry.addData("shooting","yes");
-            }
-            else{
-                telemetry.addData("shooting","no");
+            if (position == triggerUp) {
+                telemetry.addData("shooting", "yes");
+            } else {
+                telemetry.addData("shooting", "no");
             }
 
             moveTriggerServo(position);
@@ -342,16 +409,16 @@ public class ParentOpMode extends LinearOpMode {
 
     // Matt we don't know if you want this but we tried - HJO & KB
     //This is to see if the shotgun shoots or not and updates the color array if needed/worked
-    public boolean didShooterShoot(){
-        if (ShotgunHasBall()){
+    public boolean didShooterShoot() {
+        if (ShotgunHasBall()) {
             return false;
-        }else {
-            colorArray[ShootgunIndex]="None";
+        } else {
+            colorArray[ShootgunIndex] = "None";
             return true;
         }
     }
 
-    public void controlOfShotgun(){
+    public void controlOfShotgun() {
         double shped = 1750; // 1630
         double NoTolerance = 100;
         double currentVelocity = shotgunMotor.getVelocity();
@@ -364,7 +431,7 @@ public class ParentOpMode extends LinearOpMode {
 //            }
 //        }
 
-        if (shotgunSpinyPB){
+        if (shotgunSpinyPB) {
 //            shotgunSpiny(shped);
             shotgunMotor.setVelocity(shped);
 //            telemetry.addData("AAAAHHHHHHHHH","");
@@ -374,7 +441,7 @@ public class ParentOpMode extends LinearOpMode {
             shotgunSpiny(0);
         }
 
-        if (shotgunTriggerPB() && shped >= currentVelocity - NoTolerance && shped <= currentVelocity + NoTolerance){
+        if (shotgunTriggerPB() && shped >= currentVelocity - NoTolerance && shped <= currentVelocity + NoTolerance) {
             gunTriggerSafety(triggerUp);
 //            shotgunTriggerServo.setPosition(triggerUp); //No safety
             //Added didShooterShoot() to gunTriggerSafety()
@@ -387,12 +454,12 @@ public class ParentOpMode extends LinearOpMode {
     }
 
 
-    public void shotgunSpeedTest(){
+    public void shotgunSpeedTest() {
         double shped = shotgunTestSpeed; //1750 // 1630
         double NoTolerance = 100;
         double currentVelocity = shotgunMotor.getVelocity();
 
-        if(IncrementorPlusButton()){
+        if (IncrementorPlusButton()) {
             shotgunTestSpeed += 10;
         } else if (IncrementorMinusButton()) {
             shotgunTestSpeed -= 10;
@@ -406,7 +473,7 @@ public class ParentOpMode extends LinearOpMode {
 //            }
 //        }
 
-        if (shotgunSpinyPB){
+        if (shotgunSpinyPB) {
 //            shotgunSpiny(shped);
             shotgunMotor.setVelocity(shped);
 //            telemetry.addData("AAAAHHHHHHHHH","");
@@ -416,7 +483,7 @@ public class ParentOpMode extends LinearOpMode {
             shotgunSpiny(0);
         }
 
-        if (shotgunTriggerPB() && shped >= currentVelocity - NoTolerance && shped <= currentVelocity + NoTolerance){
+        if (shotgunTriggerPB() && shped >= currentVelocity - NoTolerance && shped <= currentVelocity + NoTolerance) {
             //gunTriggerSafety(triggerUp);
             shotgunTriggerServo.setPosition(triggerUp);
             //Added didShooterShoot() to gunTriggerSafety()
@@ -430,7 +497,6 @@ public class ParentOpMode extends LinearOpMode {
     }
 
 
-
     /*****************************/
     //Autonomous Functions
 
@@ -442,7 +508,7 @@ public class ParentOpMode extends LinearOpMode {
             runRubberMotor(shpeed);
         } else if (rubberOuttakePB()) {
             runRubberMotor(-shpeed);
-        }else {
+        } else {
             runRubberMotor(0);
 
         }
@@ -459,7 +525,7 @@ public class ParentOpMode extends LinearOpMode {
             runRubberMotorExtreme(shpeed);
         } else if (rubberOuttakePB()) {
             runRubberMotorExtreme(-shpeed);
-        }else {
+        } else {
             runRubberMotorExtreme(0);
         }
         // test if spindexer is not in posittion. it moves it
@@ -469,13 +535,13 @@ public class ParentOpMode extends LinearOpMode {
 
     }
 
-    public void runRubberMotorExtreme(double shpeed){
+    public void runRubberMotorExtreme(double shpeed) {
         if (shpeed < 0) {
             rubberIntake.setPower(shpeed);
             runBallKeeper(true, false);
-        } else if(shpeed > 0){
+        } else if (shpeed > 0) {
             rubberIntake.setPower(shpeed);
-            runBallKeeper(false,false);
+            runBallKeeper(false, false);
         }
 
 /*        else if (SpindexInPosition() && shpeed > 0) {
@@ -487,11 +553,11 @@ public class ParentOpMode extends LinearOpMode {
 */
         else {
             rubberIntake.setPower(0);
-            runBallKeeper(false,true);
+            runBallKeeper(false, true);
         }
     }
 
-    public void runRubberMotor(double shpeed){
+    public void runRubberMotor(double shpeed) {
         if (shpeed < 0) {
             rubberIntake.setPower(shpeed);
             runBallKeeper(true, false);
@@ -500,9 +566,9 @@ public class ParentOpMode extends LinearOpMode {
             runBallKeeper(false, false);
         } else if (!SpindexInPosition() && shpeed > 0) {
             runBallKeeper(false, false);
-        }else {
+        } else {
             rubberIntake.setPower(0);
-            runBallKeeper(false,true);
+            runBallKeeper(false, true);
         }
     }
 
@@ -523,12 +589,12 @@ public class ParentOpMode extends LinearOpMode {
         spindexServo.setPosition(ServoPos);
     }
 
-    public void runBallKeeper(boolean backwards,boolean stop) {
-        if (stop){
+    public void runBallKeeper(boolean backwards, boolean stop) {
+        if (stop) {
             TheKeeperOfTheBalls.setPower(0);
-        }else if (!backwards){
+        } else if (!backwards) {
             TheKeeperOfTheBalls.setPower(1);
-        }else{
+        } else {
             TheKeeperOfTheBalls.setPower(-1);
         }
     }
@@ -551,38 +617,37 @@ public class ParentOpMode extends LinearOpMode {
         return !spindexPositionSwitch.getState();
     }
 
-    public void SetSpindexPositionToShotgun(int spindexerIndex){
+    public void SetSpindexPositionToShotgun(int spindexerIndex) {
         //TODO: This function
     }
 
-    public void MoveSpindexServoV2(){
-        if (!IsBall() && SpindexInPosition()){
-            if (spindex_left_was_Released()){
+    public void MoveSpindexServoV2() {
+        if (!IsBall() && SpindexInPosition()) {
+            if (spindex_left_was_Released()) {
                 SpindexPosition = SpindexPosition - SpindexIncrement;
             }
         }
         if (spindex_right_was_released()) {
             SpindexPosition = SpindexPosition + SpindexIncrement;
         }
-        if(SpindexPosition < 0){
+        if (SpindexPosition < 0) {
             SpindexPosition = 0.0128;
         }
-        if (SpindexPosition > 1){
+        if (SpindexPosition > 1) {
             SpindexPosition = SpindexPosition - SpindexIncrement;
         }
         spindexServo.setPosition(SpindexPosition);
     }
 
 
-
-    public void MoveSpindexServoV3(){
-        if (colorPosIndex > 2){
+    public void MoveSpindexServoV3() {
+        if (colorPosIndex > 2) {
             colorPosIndex = colorPosIndex - 3;
         }
 
-        if (shotgunTriggerServo.getPosition() == triggerDown){
-            if (!IsBall() && SpindexInPosition()){
-                if (spindex_left_was_Released()){
+        if (shotgunTriggerServo.getPosition() == triggerDown) {
+            if (!IsBall() && SpindexInPosition()) {
+                if (spindex_left_was_Released()) {
                     hackyPosIndex -= 1;
                     colorPosIndex -= 1;
                 }
@@ -592,16 +657,16 @@ public class ParentOpMode extends LinearOpMode {
                 colorPosIndex += 1;
             }
 
-            if(hackyPosIndex < 0){
+            if (hackyPosIndex < 0) {
                 hackyPosIndex = 0;
                 colorPosIndex = 0;
             }
-            if (hackyPosIndex > 13){
+            if (hackyPosIndex > 13) {
                 colorPosIndex -= 1;
                 hackyPosIndex -= 1;
             }
 
-            if (spindexerResetPB() && rubberOuttakePB()){
+            if (spindexerResetPB() && rubberOuttakePB()) {
                 hackyPosIndex = 0;
                 colorPosIndex = 0;
                 //todo: run outtake
@@ -613,7 +678,7 @@ public class ParentOpMode extends LinearOpMode {
     }
 
     //can be made to function like minecraft hotbar, does not yet.
-    public void  MoveSpindexServo(){
+    public void MoveSpindexServo() {
         double currentPosition = spindexServo.getPosition();
 
         boolean moveLeft = false;
@@ -649,19 +714,18 @@ public class ParentOpMode extends LinearOpMode {
             moveRight = false;
             moveLeft = false;
         }
-        if (spindexerArrayIndex == 0){
+        if (spindexerArrayIndex == 0) {
             ShootgunIndex = 2;
-        }
-        else{
-            ShootgunIndex = spindexerArrayIndex -1;
+        } else {
+            ShootgunIndex = spindexerArrayIndex - 1;
         }
         //setSpindexerServo();
     }
 
     //new spindexer stuff
-    public void spinnyHome(){
+    public void spinnyHome() {
         spinMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        if (SpindexIsHome()){
+        if (SpindexIsHome()) {
             spinMotor.setPower(0);
             spinMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             spinMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -670,24 +734,24 @@ public class ParentOpMode extends LinearOpMode {
         }
     }
 
-    public void MoveSpindexMotorV1(){
-        if (colorPosIndex > 2){
+    public void MoveSpindexMotorV1() {
+        if (colorPosIndex > 2) {
             colorPosIndex = colorPosIndex - 3;
         }
 
-        if (shotgunTriggerServo.getPosition() == triggerDown){
-            if (!IsBall() && SpindexInPosition()){
-                if (spindex_left_was_Released()){
-                    spinnyGoHere  -= SpindexMotorIncrement;
+        if (shotgunTriggerServo.getPosition() == triggerDown) {
+            if (!IsBall() && SpindexInPosition()) {
+                if (spindex_left_was_Released()) {
+                    spinnyGoHere -= SpindexMotorIncrement;
                     colorPosIndex -= 1;
                 }
             }
             if (spindex_right_was_released()) {
-                spinnyGoHere  += SpindexMotorIncrement;
+                spinnyGoHere += SpindexMotorIncrement;
                 colorPosIndex += 1;
             }
 
-            if (spindexerResetPB() && rubberOuttakePB()){
+            if (spindexerResetPB() && rubberOuttakePB()) {
                 spinnyGoHere = 0;
                 colorPosIndex = 0;
                 //todo: run outtake
@@ -742,7 +806,7 @@ public class ParentOpMode extends LinearOpMode {
         }
     }
 
-    public void setSpindexToZero(){
+    public void setSpindexToZero() {
         hackyPosIndex = 0;
 
         double spindexPos = hackyPosArray[hackyPosIndex];
@@ -765,21 +829,21 @@ public class ParentOpMode extends LinearOpMode {
         }
     }
 
-    public void ColorToPos(){
+    public void ColorToPos() {
         colorArray[spindexerArrayIndex] = ColorIs();
     }
 
-    public String getbulletcolor(){
+    public String getbulletcolor() {
         int colorIndex;
         if (ShootgunIndex == 2) {
             colorIndex = 0;
-        }else {
+        } else {
             colorIndex = ShootgunIndex + 1;
         }
         return colorArray[colorIndex];
     }
 
-    public void colorTelemetry(){
+    public void colorTelemetry() {
         final float[] hsvValues = new float[3];
         NormalizedRGBA colors = bulletIntakeColorSensor.getNormalizedColors();
         Color.colorToHSV(colors.toColor(), hsvValues);
@@ -797,7 +861,7 @@ public class ParentOpMode extends LinearOpMode {
 //        telemetry.addData("Alpha", "%.3f", colors.alpha);
     }
 
-    public void displayTelemetry(){
+    public void displayTelemetry() {
         telemetry.addData("Spindex in position", SpindexInPosition());
         telemetry.addData("Spindex INDEX!", hackyPosIndex);
         telemetry.addData("Flywheel Button:", shotgunSpinyPB);
@@ -810,8 +874,8 @@ public class ParentOpMode extends LinearOpMode {
 ////        telemetry.addData("R pressed",gamepad1.rightBumperWasPressed());
 //        telemetry.addData("L released",gamepad1.leftBumperWasReleased());
 //        telemetry.addData("R released",gamepad1.rightBumperWasReleased());
-        telemetry.addData("shotgun target",shotgunTestSpeed);
-        telemetry.addData("shotgun velocity",shotgunMotor.getVelocity());
+        telemetry.addData("shotgun target", shotgunTestSpeed);
+        telemetry.addData("shotgun velocity", shotgunMotor.getVelocity());
 //        telemetry.addData("shotgun has ball: ", ShotgunHasBall());
 //        for (int i = 0; i<3; i++){
 //            telemetry.addData("color in index " + i, colorArray[i]);
@@ -834,24 +898,24 @@ public class ParentOpMode extends LinearOpMode {
         return angle;
     }
 
-    public void holonomicFieldCentric (){
+    public void holonomicFieldCentric() {
         double rotateVelocity = right_sticky_x();
 
         double offset = Math.toRadians(90);
         double robotHead = getAngler();
         double LeftStickValuex = left_sticky_x();
         double LeftStickValueY = left_sticky_y();
-        if (rubberToggleIntakePB()){
+        if (rubberToggleIntakePB()) {
             ToggleIntake = !ToggleIntake;
         }
-        if (shotgunToggleSpinyPB()){
+        if (shotgunToggleSpinyPB()) {
             shotgunSpinyPB = !shotgunSpinyPB;
         }
-        if (slowDownStick()){
+        if (slowDownStick()) {
             ToggleSpeed = !ToggleSpeed;
         }
 
-        if(ToggleSpeed){
+        if (ToggleSpeed) {
             double SlowDownStick = 0.5;
             rotateVelocity = rotateVelocity * SlowDownStick;
             LeftStickValuex = LeftStickValuex * SlowDownStick;
@@ -861,10 +925,10 @@ public class ParentOpMode extends LinearOpMode {
         double angle = Math.atan2(left_sticky_y(), left_sticky_x()) - Math.toRadians(robotHead) - offset;
         double magnitude = Math.hypot(LeftStickValuex, LeftStickValueY);
 
-        double Vlf = (magnitude * Math.cos(angle +(Math.PI/4))+rotateVelocity);
-        double Vlb = (magnitude * Math.sin(angle +(Math.PI/4))+rotateVelocity);
-        double Vrf = (magnitude * Math.sin(angle +(Math.PI/4))-rotateVelocity);
-        double Vrb = (magnitude * Math.cos(angle +(Math.PI/4))-rotateVelocity);
+        double Vlf = (magnitude * Math.cos(angle + (Math.PI / 4)) + rotateVelocity);
+        double Vlb = (magnitude * Math.sin(angle + (Math.PI / 4)) + rotateVelocity);
+        double Vrf = (magnitude * Math.sin(angle + (Math.PI / 4)) - rotateVelocity);
+        double Vrb = (magnitude * Math.cos(angle + (Math.PI / 4)) - rotateVelocity);
 
         leftFront.setPower(Vlf);
         leftBack.setPower(Vlb);
@@ -886,17 +950,17 @@ public class ParentOpMode extends LinearOpMode {
         telemetry.addData("drive angle", Math.toDegrees(angle));
     }
 
-    public void autoHolonomicFieldCentric (double magnitude, double angle, double rotateVelocity){
+    public void autoHolonomicFieldCentric(double magnitude, double angle, double rotateVelocity) {
         double robotHead = getAngler();
 //        double offset = Math.toRadians(-90+robotHead);
 //        angle = Math.toRadians(angle)+offset;
         double offset = Math.toRadians(90); //-90
         angle = angle - Math.toRadians(robotHead) - offset;
 
-        double Vlf = (magnitude * Math.cos(angle +(Math.PI/4))+rotateVelocity);
-        double Vlb = (magnitude * Math.sin(angle +(Math.PI/4))+rotateVelocity);
-        double Vrf = (magnitude * Math.sin(angle +(Math.PI/4))-rotateVelocity);
-        double Vrb = (magnitude * Math.cos(angle +(Math.PI/4))-rotateVelocity);
+        double Vlf = (magnitude * Math.cos(angle + (Math.PI / 4)) + rotateVelocity);
+        double Vlb = (magnitude * Math.sin(angle + (Math.PI / 4)) + rotateVelocity);
+        double Vrf = (magnitude * Math.sin(angle + (Math.PI / 4)) - rotateVelocity);
+        double Vrb = (magnitude * Math.cos(angle + (Math.PI / 4)) - rotateVelocity);
 
         leftFront.setPower(Vlf);
         leftBack.setPower(Vlb);
@@ -956,7 +1020,7 @@ public class ParentOpMode extends LinearOpMode {
         // multiple speeds to get an average, then set the linear scalar to the
         // inverse of the error. For example, if you move the robot 100 inches and
         // the sensor reports 103 inches, set the linear scalar to 100/103 = 0.971
-        OdometrySensor.setLinearScalar(117.75/99.7468);
+        OdometrySensor.setLinearScalar(117.75 / 99.7468);
         OdometrySensor.setAngularScalar(1.0);
 
         // The IMU on the OTOS includes a gyroscope and accelerometer, which could
@@ -993,20 +1057,21 @@ public class ParentOpMode extends LinearOpMode {
         telemetry.addLine(String.format("OTOS Firmware Version: v%d.%d", fwVersion.major, fwVersion.minor));
         telemetry.update();
     }
-    public void ZeroOtosSensor(){
+
+    public void ZeroOtosSensor() {
         OdometrySensor.resetTracking();
     }
 
-    public void holonomic(){
+    public void holonomic() {
         double magnitude = Math.hypot(left_sticky_x(), left_sticky_y());
         double offset = Math.toRadians(-90);
         double angle = Math.atan2(left_sticky_y(), left_sticky_x()) + offset;
         double rotateVelocity = right_sticky_x();
 
-        double Vlf = (magnitude * Math.cos(angle + (Math.PI/4))+rotateVelocity);
-        double Vlb = (magnitude * Math.sin(angle + (Math.PI/4))+rotateVelocity);
-        double Vrf = (magnitude * Math.sin(angle + (Math.PI/4))-rotateVelocity);
-        double Vrb = (magnitude * Math.cos(angle + (Math.PI/4))-rotateVelocity);
+        double Vlf = (magnitude * Math.cos(angle + (Math.PI / 4)) + rotateVelocity);
+        double Vlb = (magnitude * Math.sin(angle + (Math.PI / 4)) + rotateVelocity);
+        double Vrf = (magnitude * Math.sin(angle + (Math.PI / 4)) - rotateVelocity);
+        double Vrb = (magnitude * Math.cos(angle + (Math.PI / 4)) - rotateVelocity);
 
         leftFront.setPower(Vlf);
         leftBack.setPower(Vlb);
@@ -1019,51 +1084,51 @@ public class ParentOpMode extends LinearOpMode {
         telemetry.addData("rb", Vrb);
     }
 
-    public void toggleSnail(){
-        if (SnailPB_was_Released()){
+    public void toggleSnail() {
+        if (SnailPB_was_Released()) {
             RunSnail();
         }
     }
 
-    public void RunSnail(){
+    public void RunSnail() {
         double morePower = 0;
         double snailPos = snailServo.getPosition();
 
-        if(snailPos == 0){
+        if (snailPos == 0) {
             morePower = snailPosition;
             snailDiretion = "extended";
-        }else{
+        } else {
             morePower = 0;
             snailDiretion = "retracted";
         }
         snailServo.setPosition(morePower);
     }
 
-    public double getSpindexPosition(){
+    public double getSpindexPosition() {
         return spindexServo.getPosition();
     }
 
 
-    public void MoveServo(boolean down){
+    public void MoveServo(boolean down) {
         double movement = spindexServo.getPosition();
-        if (down){
+        if (down) {
             movement = movement - 0.0005;
-        }else{
+        } else {
             movement = movement + 0.0005;
         }
-        if(movement>1){
+        if (movement > 1) {
             movement = 1;
-        } else if (movement<0) {
-          movement = 0;
+        } else if (movement < 0) {
+            movement = 0;
         }
 
         telemetry.addData("Servo 5 Position: ", movement);
         spindexServo.setPosition(movement);
     }
 
-    public void RunTesting(){
-        TestingSmallIncrementV2();
-        TestingSmallIncrementV2();
+    public void RunTesting() {
+//        TestingSmallIncrementV2();
+//        TestingSmallIncrementV2();
         if (IncrementorPlusButton()) {
             MoveServo(false);
         } else if (IncrementorMinusButton()) {
@@ -1088,23 +1153,23 @@ public class ParentOpMode extends LinearOpMode {
 //    }
 //
 
-    public void prerecordColors(){
+    public void prerecordColors() {
         setServoPosition0(servoPosition0);
-        while (!SpindexInPosition()){
+        while (!SpindexInPosition()) {
         }
         autoRead();
         setServoPosition0(servoPosition1);
-        while (!SpindexInPosition()){
+        while (!SpindexInPosition()) {
         }
         autoRead();
         setServoPosition0(servoPosition2);
-        while (!SpindexInPosition()){
+        while (!SpindexInPosition()) {
         }
         autoRead();
         setServoPosition0(servoPosition0);
     }
 
-
+/*
     public void TestingSmallIncrementV2(){
         if (IncrementOncePBV2()){
             MoveServo(true);
@@ -1115,8 +1180,8 @@ public class ParentOpMode extends LinearOpMode {
             MoveServo(false);
         }
     }
+*/
 }
-
 /*
 TODO:   not listed in any particular order of importance..................................
     ......................................................................................
