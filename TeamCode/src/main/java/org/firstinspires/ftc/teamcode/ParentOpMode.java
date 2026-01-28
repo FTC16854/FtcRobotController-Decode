@@ -140,7 +140,7 @@ public class ParentOpMode extends LinearOpMode {
     int spinnyGoHere = 0; // target position of the spindexer
     int spindexerArrayIndex = 0;            // For the color array, the index of the ball in the intake position
     int ShootgunIndex = 2;// For the color array, the index of the ball in the shooter position
-    int shotgunTestSpeed = 1750;
+    int shotgunTestSpeed = 1650;
     String tempBulletColor;
     boolean tempBulletolorIsSaved = false;
     boolean shotgunSpinyPB = false;
@@ -149,8 +149,11 @@ public class ParentOpMode extends LinearOpMode {
     double triggerDown = 0;
     double triggerUp = 0.29; //0.255
     double snailPosition = 0.585; //0.450
-    String snailDiretion = "retracted";
+    String snailDirection = "retracted";
     final float colorSensorGain = (float) 17.5;
+
+    double spindexLockoutDelayStart = 0;   // Delay for spindexer after releasing trigger button
+    double spindexLockoutDelay = 2000;    //milliseconds
 
     public void initialize() {
         // Initialize the hardware variables. Note that the strings used here as parameters
@@ -313,6 +316,10 @@ public class ParentOpMode extends LinearOpMode {
         return gamepad2.right_trigger > 0.5;
     }
 
+    public boolean shotgunTriggerWasReleased(){
+        return gamepad2.rightTriggerWasReleased();
+    }
+
     public boolean rubberToggleIntakePB() {
         return gamepad1.bWasPressed();
     }
@@ -450,6 +457,9 @@ public class ParentOpMode extends LinearOpMode {
             shotgunTriggerServo.setPosition(triggerDown);
 
         }
+        if(shotgunTriggerWasReleased()){
+            spindexLockoutDelayStart = runtime.milliseconds();
+        }
 
     }
 
@@ -492,7 +502,9 @@ public class ParentOpMode extends LinearOpMode {
             shotgunTriggerServo.setPosition(triggerDown);
 
         }
-
+        if(shotgunTriggerWasReleased()){
+            spindexLockoutDelayStart = runtime.milliseconds();
+        }
 
     }
 
@@ -521,7 +533,7 @@ public class ParentOpMode extends LinearOpMode {
 
     public void inputRubberMotorExtreme() {
         double shpeed = 1;
-        if (rubberIntakePB() || ToggleIntake) {
+        if (ToggleIntake) {
             runRubberMotorExtreme(shpeed);
         } else if (rubberOuttakePB()) {
             runRubberMotorExtreme(-shpeed);
@@ -758,9 +770,15 @@ public class ParentOpMode extends LinearOpMode {
             }
 
         }
-        spinMotor.setTargetPosition(spinnyGoHere);
-        spinMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        spinMotor.setPower(0.25);
+
+        //Safety: Don't move unless enough time has passed for servo to go down
+        if(runtime.milliseconds()>spindexLockoutDelayStart+spindexLockoutDelay){
+            spinMotor.setTargetPosition(spinnyGoHere);
+            spinMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            spinMotor.setPower(0.25);
+        }
+
+
 
         telemetry.addData("actual motor position", spinMotor.getCurrentPosition());
         telemetry.addData("motor tick target position", spinnyGoHere);
@@ -865,7 +883,7 @@ public class ParentOpMode extends LinearOpMode {
         telemetry.addData("Spindex in position", SpindexInPosition());
         telemetry.addData("Spindex INDEX!", hackyPosIndex);
         telemetry.addData("Flywheel Button:", shotgunSpinyPB);
-        telemetry.addData("Snail is", snailDiretion);
+        telemetry.addData("Snail is", snailDirection);
 
         ColorIs();
 
@@ -1096,10 +1114,10 @@ public class ParentOpMode extends LinearOpMode {
 
         if (snailPos == 0) {
             morePower = snailPosition;
-            snailDiretion = "extended";
+            snailDirection = "extended";
         } else {
             morePower = 0;
-            snailDiretion = "retracted";
+            snailDirection = "retracted";
         }
         snailServo.setPosition(morePower);
     }

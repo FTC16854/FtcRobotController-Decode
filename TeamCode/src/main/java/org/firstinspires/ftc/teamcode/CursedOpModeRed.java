@@ -52,9 +52,9 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
  * override the ParentOpMode runOpMode() method.
  **/
 
-@TeleOp(name="Opmode with vision", group="Linear Opmode")
+@TeleOp(name="Vision RED", group="Linear Opmode")
 //@Disabled
-public class CursedOpMode extends VisionParentOpMode {
+public class CursedOpModeRed extends VisionParentOpMode {
 
 
 
@@ -105,7 +105,7 @@ public class CursedOpMode extends VisionParentOpMode {
      */
     @Override
     public void runOpMode() {
-        SetAlliance("Blue");
+        SetAlliance("Red");
         initialize();
 
         // Init loop - optional
