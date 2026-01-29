@@ -140,7 +140,7 @@ public class ParentOpMode extends LinearOpMode {
     int spinnyGoHere = 0; // target position of the spindexer
     int spindexerArrayIndex = 0;            // For the color array, the index of the ball in the intake position
     int ShootgunIndex = 2;// For the color array, the index of the ball in the shooter position
-    int shotgunTestSpeed = 1650;
+    int shotgunSpeed = 1650;
     String tempBulletColor;
     boolean tempBulletolorIsSaved = false;
     boolean shotgunSpinyPB = false;
@@ -465,14 +465,14 @@ public class ParentOpMode extends LinearOpMode {
 
 
     public void shotgunSpeedTest() {
-        double shped = shotgunTestSpeed; //1750 // 1630
+        double shped = shotgunSpeed; //1750 // 1630
         double NoTolerance = 100;
         double currentVelocity = shotgunMotor.getVelocity();
 
         if (IncrementorPlusButton()) {
-            shotgunTestSpeed += 10;
+            shotgunSpeed += 10;
         } else if (IncrementorMinusButton()) {
-            shotgunTestSpeed -= 10;
+            shotgunSpeed -= 10;
         }
 
 //        if (ShotgunHasBall()){
@@ -892,7 +892,7 @@ public class ParentOpMode extends LinearOpMode {
 ////        telemetry.addData("R pressed",gamepad1.rightBumperWasPressed());
 //        telemetry.addData("L released",gamepad1.leftBumperWasReleased());
 //        telemetry.addData("R released",gamepad1.rightBumperWasReleased());
-        telemetry.addData("shotgun target", shotgunTestSpeed);
+        telemetry.addData("shotgun target", shotgunSpeed);
         telemetry.addData("shotgun velocity", shotgunMotor.getVelocity());
 //        telemetry.addData("shotgun has ball: ", ShotgunHasBall());
 //        for (int i = 0; i<3; i++){
@@ -1186,6 +1186,38 @@ public class ParentOpMode extends LinearOpMode {
         autoRead();
         setServoPosition0(servoPosition0);
     }
+
+    public void MoveSpindexMotorautomosv1() {
+        spinnyGoHere += SpindexMotorIncrement;
+        colorPosIndex += 1;
+
+        if (colorPosIndex > 2) {
+            colorPosIndex = colorPosIndex - 3;
+        }
+        spinMotor.setTargetPosition(spinnyGoHere);
+        spinMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        spinMotor.setPower(0.25);
+
+        telemetry.addData("actual motor position", spinMotor.getCurrentPosition());
+        telemetry.addData("motor tick target position", spinnyGoHere);
+    }
+    public void Movehoodshootv1(int ShootHowMany) {
+        shotgunSpiny(shotgunSpeed);
+        sleep(2000);
+        for(int i=0;i<ShootHowMany;i++){
+            moveTriggerServo(triggerUp);
+            sleep(1500);
+            moveTriggerServo(triggerDown);
+            sleep(1500);
+            MoveSpindexMotorautomosv1();
+            sleep(1500);
+        }
+        shotgunSpiny(0);
+    }
+
+
+
+
 
 /*
     public void TestingSmallIncrementV2(){
