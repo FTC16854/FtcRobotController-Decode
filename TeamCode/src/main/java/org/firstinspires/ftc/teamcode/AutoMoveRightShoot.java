@@ -52,9 +52,9 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
  * override the ParentOpMode runOpMode() method.
  **/
 
-@Autonomous(name="MoveOffLineLeft", group="Linear Opmode")
+@Autonomous(name="right shoot", group="Linear Opmode")
 //@Disabled
-public class AutoMoveOffLineLeft extends ParentOpMode {
+public class AutoMoveRightShoot extends ParentOpMode {
 
     /**
      * runOpMode() will be overridden in child OpMode.
@@ -69,6 +69,7 @@ public class AutoMoveOffLineLeft extends ParentOpMode {
         // Init loop - optional
         while(opModeInInit()){
             //prerecordColors();
+            spinnyHome();
             telemetry.addData("Cheese and Pickles ","Sandwich!");
             telemetry.update();
             // Code in here will loop continuously until OpMode is started
@@ -80,10 +81,15 @@ public class AutoMoveOffLineLeft extends ParentOpMode {
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
-           autoHolonomicRobotCentric(0.5, -90, 0);
-           sleep(6000);
-           sleep(1500);
-           stopDrive();
+           autoHolonomicFieldCentric(0.5, -74, 0);
+            sleep(1500);
+            stopDrive();
+            Movehoodshootv1(3);
+            autoHolonomicFieldCentric(0.5, 0, 0);
+            sleep(1500);
+            stopDrive();
+
+
             checkEmergencyStop(); // Stops motors and Terminates if buttons are pressed
             //without additional code in the while(opModeIsActive) loop.
 

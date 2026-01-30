@@ -52,9 +52,9 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
  * override the ParentOpMode runOpMode() method.
  **/
 
-@Autonomous(name="shoot", group="Linear Opmode")
+@Autonomous(name="left shoot", group="Linear Opmode")
 //@Disabled
-public class AutoMoveshoot extends ParentOpMode {
+public class AutoMoveLeftShoot extends ParentOpMode {
 
     /**
      * runOpMode() will be overridden in child OpMode.
@@ -85,7 +85,7 @@ public class AutoMoveshoot extends ParentOpMode {
             sleep(1500);
             stopDrive();
             Movehoodshootv1(3);
-            autoHolonomicFieldCentric(0.5, 0, 0);
+            autoHolonomicFieldCentric(0.5, 70, 0);
             sleep(1500);
             stopDrive();
 

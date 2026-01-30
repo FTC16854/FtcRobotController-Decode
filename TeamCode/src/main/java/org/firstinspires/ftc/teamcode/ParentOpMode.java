@@ -153,7 +153,7 @@ public class ParentOpMode extends LinearOpMode {
     final float colorSensorGain = (float) 17.5;
 
     double spindexLockoutDelayStart = 0;   // Delay for spindexer after releasing trigger button
-    double spindexLockoutDelay = 2000;    //milliseconds
+    double spindexLockoutDelay = 1250;    //milliseconds
 
     public void initialize() {
         // Initialize the hardware variables. Note that the strings used here as parameters
@@ -990,6 +990,31 @@ public class ParentOpMode extends LinearOpMode {
         telemetry.addData("rf", Vrf);
         telemetry.addData("rb", Vrb);
         telemetry.addData("heading: ", robotHead);
+        telemetry.addData("drive direction: ", angle);
+    }
+
+    public void autoHolonomicRobotCentric(double magnitude, double angle, double rotateVelocity) {
+//        double robotHead = getAngler();
+//        double offset = Math.toRadians(-90+robotHead);
+//        angle = Math.toRadians(angle)+offset;
+        double offset = Math.toRadians(90); //-90
+//        angle = angle - Math.toRadians(robotHead) - offset;
+
+        double Vlf = (magnitude * Math.cos(angle + (Math.PI / 4)) + rotateVelocity);
+        double Vlb = (magnitude * Math.sin(angle + (Math.PI / 4)) + rotateVelocity);
+        double Vrf = (magnitude * Math.sin(angle + (Math.PI / 4)) - rotateVelocity);
+        double Vrb = (magnitude * Math.cos(angle + (Math.PI / 4)) - rotateVelocity);
+
+        leftFront.setPower(Vlf);
+        leftBack.setPower(Vlb);
+        rightFront.setPower(Vrf);
+        rightBack.setPower(Vrb);
+
+        telemetry.addData("lf", Vlf);
+        telemetry.addData("lb", Vlb);
+        telemetry.addData("rf", Vrf);
+        telemetry.addData("rb", Vrb);
+//        telemetry.addData("heading: ", robotHead);
         telemetry.addData("drive direction: ", angle);
     }
 
