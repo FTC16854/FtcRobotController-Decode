@@ -52,7 +52,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
  * override the ParentOpMode runOpMode() method.
  **/
 
-@Autonomous(name="MoveOffLineForward", group="Linear Opmode")
+@Autonomous(name="MoveForward", group="Linear Opmode")
 //@Disabled
 public class AutoMoveOffLineFwd extends ParentOpMode {
 

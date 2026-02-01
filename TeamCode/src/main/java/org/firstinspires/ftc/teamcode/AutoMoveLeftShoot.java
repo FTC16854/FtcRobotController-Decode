@@ -52,7 +52,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
  * override the ParentOpMode runOpMode() method.
  **/
 
-@Autonomous(name="left shoot", group="Linear Opmode")
+@Autonomous(name="red shoot", group="Linear Opmode")
 //@Disabled
 public class AutoMoveLeftShoot extends ParentOpMode {
 
@@ -81,11 +81,11 @@ public class AutoMoveLeftShoot extends ParentOpMode {
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
-           autoHolonomicFieldCentric(0.5, -74, 0);
+           autoHolonomicRobotCentric(0.5, 0, 0);
             sleep(1500);
             stopDrive();
             Movehoodshootv1(3);
-            autoHolonomicFieldCentric(0.5, 70, 0);
+            autoHolonomicRobotCentric(0.5, 90, 0);
             sleep(1500);
             stopDrive();
 

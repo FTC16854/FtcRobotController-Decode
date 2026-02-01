@@ -153,7 +153,7 @@ public class ParentOpMode extends LinearOpMode {
     final float colorSensorGain = (float) 17.5;
 
     double spindexLockoutDelayStart = 0;   // Delay for spindexer after releasing trigger button
-    double spindexLockoutDelay = 1250;    //milliseconds
+    double spindexLockoutDelay = 0500;    //milliseconds
 
     public void initialize() {
         // Initialize the hardware variables. Note that the strings used here as parameters
@@ -208,6 +208,7 @@ public class ParentOpMode extends LinearOpMode {
         rubberIntake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         spinMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        ZeroOtosSensor();
         //Update Driver Station Status Message after init
         telemetry.addData("Status:", "Initialized");
         telemetry.update();
@@ -346,11 +347,11 @@ public class ParentOpMode extends LinearOpMode {
     }
 
     public boolean IncrementorPlusButton() {
-        return gamepad2.dpad_up;
+        return gamepad2.dpadUpWasPressed();
     }
 
     public boolean IncrementorMinusButton() {
-        return gamepad2.dpad_down;
+        return gamepad2.dpadDownWasPressed();
     }
 
     public boolean AlignRobotPB() {
@@ -470,9 +471,9 @@ public class ParentOpMode extends LinearOpMode {
         double currentVelocity = shotgunMotor.getVelocity();
 
         if (IncrementorPlusButton()) {
-            shotgunSpeed += 10;
+            shotgunSpeed += 50;
         } else if (IncrementorMinusButton()) {
-            shotgunSpeed -= 10;
+            shotgunSpeed -= 50;
         }
 
 //        if (ShotgunHasBall()){
@@ -996,7 +997,7 @@ public class ParentOpMode extends LinearOpMode {
     public void autoHolonomicRobotCentric(double magnitude, double angle, double rotateVelocity) {
 //        double robotHead = getAngler();
 //        double offset = Math.toRadians(-90+robotHead);
-//        angle = Math.toRadians(angle)+offset;
+        angle = Math.toRadians(angle);
         double offset = Math.toRadians(90); //-90
 //        angle = angle - Math.toRadians(robotHead) - offset;
 

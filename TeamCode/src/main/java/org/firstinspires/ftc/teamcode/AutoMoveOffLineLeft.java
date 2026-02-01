@@ -52,7 +52,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
  * override the ParentOpMode runOpMode() method.
  **/
 
-@Autonomous(name="MoveOffLineLeft", group="Linear Opmode")
+@Autonomous(name="MoveRight", group="Linear Opmode")
 //@Disabled
 public class AutoMoveOffLineLeft extends ParentOpMode {
 
@@ -81,7 +81,6 @@ public class AutoMoveOffLineLeft extends ParentOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
            autoHolonomicRobotCentric(0.5, -90, 0);
-           sleep(6000);
            sleep(1500);
            stopDrive();
             checkEmergencyStop(); // Stops motors and Terminates if buttons are pressed
